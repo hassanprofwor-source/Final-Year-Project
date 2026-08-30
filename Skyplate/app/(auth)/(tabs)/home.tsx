@@ -20,6 +20,7 @@ import { Ionicons } from '@expo/vector-icons';
 import Toast from 'react-native-toast-message';
 import { useUser } from '@clerk/expo';
 import { api, apiErrorMessage, ensureSkyplateUser } from '@/lib/api';
+import { getDeviceCoordinates } from '@/lib/location';
 import { registerPushToken } from '@/lib/notifications';
 import Screen from '@/components/ui/Screen';
 import EmptyState from '@/components/ui/EmptyState';
@@ -84,7 +85,10 @@ const HomeScreen = () => {
   useEffect(() => {
     const fetchWeather = async () => {
       try {
-        const response = await api.get('/api/v1/weather');
+        const coords = await getDeviceCoordinates();
+        const response = await api.get('/api/v1/weather', {
+          params: coords ? { lat: coords.lat, lon: coords.lon } : undefined,
+        });
         const payload = response.data.data;
         setCity({
           name: payload.city,

@@ -26,11 +26,15 @@
       "backgroundColor": "#000000"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Skyplate uses your location to suggest dishes for the weather where you are."
+      }
     },
     "android": {
       "permissions": [
-        "ACCESS_BACKGROUND_LOCATION"
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION"
       ],
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
@@ -49,6 +53,12 @@
       "expo-secure-store",
       "expo-web-browser",
       "expo-image-picker",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Skyplate uses your location to suggest dishes for the weather where you are."
+        }
+      ],
       [
         "expo-notifications",
         {

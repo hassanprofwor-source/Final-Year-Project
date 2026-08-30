@@ -16,6 +16,12 @@ const weatherIcon = (condition, isDaytime) => {
   return `https://openweathermap.org/img/wn/50${period}@2x.png`;
 };
 
+const parseCoordinate = (value, min, max) => {
+  const number = Number(value);
+  if (!Number.isFinite(number) || number < min || number > max) return null;
+  return number;
+};
+
 export const getWeatherSuggestions = catchAsyncErrors(async (req, res, next) => {
   const apiKey = process.env.OPENWEATHER_API_KEY;
   const cityId = process.env.OPENWEATHER_CITY_ID || "1177654";
@@ -24,9 +30,14 @@ export const getWeatherSuggestions = catchAsyncErrors(async (req, res, next) => 
     return next(new ErrorHandler("OpenWeatherMap API key is not configured.", 500));
   }
 
-  const weatherRes = await fetch(
-    `https://api.openweathermap.org/data/2.5/weather?id=${cityId}&units=metric&appid=${apiKey}`
-  );
+  const lat = parseCoordinate(req.query.lat, -90, 90);
+  const lon = parseCoordinate(req.query.lon, -180, 180);
+  const useLocation = lat !== null && lon !== null;
+  const weatherUrl = useLocation
+    ? `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${apiKey}`
+    : `https://api.openweathermap.org/data/2.5/weather?id=${cityId}&units=metric&appid=${apiKey}`;
+
+  const weatherRes = await fetch(weatherUrl);
   const weatherData = await weatherRes.json();
 
   if (!weatherRes.ok || weatherData.cod !== 200) {
@@ -59,6 +70,7 @@ export const getWeatherSuggestions = catchAsyncErrors(async (req, res, next) => 
       description: weatherData.weather?.[0]?.description,
       isDaytime,
       icon: weatherIcon(condition, isDaytime),
+      fromLocation: useLocation,
       suggestions,
     },
   });
