@@ -4,7 +4,7 @@ from flask import Flask, jsonify
 from flask_cors import CORS
 from dotenv import load_dotenv
 
-from peak_hours import load_saved_model, prediction_payload, train_and_save
+from peak_hours import analytics_payload, load_saved_model, train_and_save
 
 load_dotenv()
 
@@ -35,13 +35,13 @@ def health():
 @app.get("/predict")
 def predict():
     model, meta = get_model()
-    return jsonify(prediction_payload(model, meta))
+    return jsonify(analytics_payload(model, meta))
 
 
 @app.post("/train")
 def train():
     model, meta = train_and_save()
-    return jsonify({"ok": True, **prediction_payload(model, meta)})
+    return jsonify({"ok": True, **analytics_payload(model, meta)})
 
 
 if __name__ == "__main__":

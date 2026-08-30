@@ -58,12 +58,12 @@ export const buildPeakHoursReport = (orders = []) => {
     dayCounts[day] = (dayCounts[day] || new Set()).add(ts.toDateString());
   });
 
-  const predictions = {};
+  const actuals = {};
   WEEKDAYS.forEach((name, mondayIndex) => {
     // JS getDay: 0 Sunday ... convert Monday=0
     const jsDay = mondayIndex === 6 ? 0 : mondayIndex + 1;
     const daysObserved = dayCounts[jsDay]?.size || 1;
-    predictions[name] = HOURS.map((hour) => {
+    actuals[name] = HOURS.map((hour) => {
       const total = buckets[`${jsDay}-${hour}`] || 0;
       return Number((total / daysObserved).toFixed(2));
     });
@@ -72,9 +72,11 @@ export const buildPeakHoursReport = (orders = []) => {
   return {
     hours: HOURS,
     weekdays: WEEKDAYS,
-    predictions,
+    actuals,
+    predictions: actuals,
     usedSynthetic,
     sampleSize: timestamps.length,
-    source: usedSynthetic ? "node-synthetic" : "node-orders",
+    realOrderCount: timestamps.length,
+    source: usedSynthetic ? "node-synthetic" : "node-live",
   };
 };

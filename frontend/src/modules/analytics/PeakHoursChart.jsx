@@ -45,14 +45,21 @@ const PeakHoursChart = () => {
 
   const chartData = useMemo(() => {
     if (!payload) return null;
-    const values = payload.predictions?.[weekday] || [];
+    const actuals = payload.actuals?.[weekday] || [];
+    const predicted = payload.predictions?.[weekday] || [];
     return {
       labels: (payload.hours || []).map((hour) => `${hour}:00`),
       datasets: [
         {
-          label: `${weekday} predicted orders`,
-          data: values,
+          label: `${weekday} actual orders`,
+          data: actuals,
           backgroundColor: "rgba(225, 29, 72, 0.85)",
+          borderRadius: 8,
+        },
+        {
+          label: `${weekday} model expected`,
+          data: predicted,
+          backgroundColor: "rgba(196, 196, 200, 0.45)",
           borderRadius: 8,
         },
       ],
@@ -63,7 +70,9 @@ const PeakHoursChart = () => {
     if (!chartData) return "—";
     const values = chartData.datasets[0].data;
     if (!values.length) return "—";
-    const maxIndex = values.indexOf(Math.max(...values));
+    const max = Math.max(...values);
+    if (max <= 0) return "—";
+    const maxIndex = values.indexOf(max);
     return chartData.labels[maxIndex];
   }, [chartData]);
 
@@ -76,10 +85,10 @@ const PeakHoursChart = () => {
       <div className="px-4 py-6 lg:px-8">
         <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
           <StatCard label="Busiest hour" value={busiestHour} icon={BarChart3} />
-          <StatCard label="Training samples" value={payload?.sampleSize ?? "—"} icon={BarChart3} />
+          <StatCard label="Live orders" value={payload?.realOrderCount ?? payload?.sampleSize ?? "—"} icon={BarChart3} />
           <StatCard
             label="Data source"
-            value={payload?.usedSynthetic ? "Synthetic" : payload ? "Live orders" : "—"}
+            value={payload?.usedSynthetic ? "Synthetic" : payload ? "Live database" : "—"}
             icon={BarChart3}
           />
         </div>

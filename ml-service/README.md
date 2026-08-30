@@ -20,13 +20,13 @@ MONGO_DB_NAME=Skyplate
 PORT=5001
 ```
 
-## Train
+## Train (once)
 
 ```powershell
 python train.py
 ```
 
-This writes `models/peak_hours.joblib`. Training uses real orders when there are at least 20; otherwise it uses synthetic lunch/dinner traffic so the chart still works.
+This writes `models/peak_hours.joblib`. You do not retrain when new orders arrive.
 
 ## Run
 
@@ -35,7 +35,9 @@ python app.py
 ```
 
 - `GET /health` — service and model status
-- `GET /predict` — weekly hour predictions
-- `POST /train` — retrain and overwrite the saved model
+- `GET /predict` — reads **live orders** from Mongo and returns actual busy-hour averages, plus the trained model's expected pattern
+- `POST /train` — optional retrain if you want to rebuild the saved model
+
+The Analytics chart updates from the database on each request. The saved model is only the expected pattern.
 
 Backend should have `ML_SERVICE_URL=http://localhost:5001`.

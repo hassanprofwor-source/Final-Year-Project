@@ -168,16 +168,62 @@ def load_saved_model():
     return model, meta
 
 
-def prediction_payload(model, meta):
+def empty_week():
+    return {name: [0.0] * len(HOURS) for name in WEEKDAYS}
+
+
+def live_actuals(timestamps):
+    actuals = empty_week()
+    if not timestamps:
+        return actuals
+
+    frame = pd.DataFrame({"timestamp": pd.to_datetime(timestamps)})
+    frame["date"] = frame["timestamp"].dt.date
+    frame["hour"] = frame["timestamp"].dt.hour
+    frame["weekday"] = frame["timestamp"].dt.weekday
+
+    grouped = (
+        frame.groupby(["date", "hour", "weekday"], as_index=False)
+        .size()
+        .rename(columns={"size": "order_count"})
+    )
+    averages = grouped.groupby(["weekday", "hour"], as_index=False)["order_count"].mean()
+    hour_index = {hour: index for index, hour in enumerate(HOURS)}
+
+    for _, row in averages.iterrows():
+        weekday = int(row["weekday"])
+        hour = int(row["hour"])
+        if weekday > 6 or hour not in hour_index:
+            continue
+        actuals[WEEKDAYS[weekday]][hour_index[hour]] = round(float(row["order_count"]), 2)
+
+    return actuals
+
+
+def load_live_orders():
+    try:
+        timestamps = load_order_datetimes()
+        return timestamps, None
+    except Exception as error:
+        return [], str(error)
+
+
+def analytics_payload(model, meta):
+    timestamps, load_error = load_live_orders()
+    actuals = live_actuals(timestamps)
+    predictions = predict_week(model) if model is not None else empty_week()
+
     return {
-        "hours": meta.get("hours", HOURS),
-        "weekdays": meta.get("weekdays", WEEKDAYS),
-        "predictions": predict_week(model),
-        "usedSynthetic": meta.get("usedSynthetic", False),
-        "sampleSize": meta.get("sampleSize", 0),
-        "realOrderCount": meta.get("realOrderCount"),
-        "loadError": meta.get("loadError"),
-        "trainedAt": meta.get("trainedAt"),
-        "metrics": meta.get("metrics"),
-        "source": "flask-synthetic" if meta.get("usedSynthetic") else "flask",
+        "hours": HOURS,
+        "weekdays": WEEKDAYS,
+        "actuals": actuals,
+        "predictions": predictions,
+        "usedSynthetic": False,
+        "sampleSize": int(len(timestamps)),
+        "realOrderCount": int(len(timestamps)),
+        "trainedSampleSize": None if meta is None else meta.get("sampleSize"),
+        "loadError": load_error,
+        "trainedAt": None if meta is None else meta.get("trainedAt"),
+        "metrics": None if meta is None else meta.get("metrics"),
+        "source": "flask-live",
     }

@@ -11,7 +11,7 @@ export const getPeakHours = catchAsyncErrors(async (req, res) => {
     if (response.ok) {
       return res.status(200).json({
         success: true,
-        data: { ...payload, source: payload.usedSynthetic ? "flask-synthetic" : "flask" },
+        data: payload,
       });
     }
   } catch {
