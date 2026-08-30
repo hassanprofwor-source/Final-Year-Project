@@ -1,0 +1,56 @@
+# Dissertation and private documents
+doc/
+
+# Dependencies
+node_modules/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editors
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Python / ML
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+ml-service/models/
+
+# Expo / Metro
+.expo/
+web-build/
+.metro-health-check*
+*.tsbuildinfo
+expo-env.d.ts
+
+# Frontend build
+dist/
+dist-ssr/
+
+# Coverage and caches
+coverage/
+.cache/

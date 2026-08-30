@@ -1,0 +1,65 @@
+{
+  "expo": {
+    "name": "Skyplate",
+    "slug": "Skyplate",
+    "version": "1.0.0",
+    "extra": {
+      "frontendUrl": "http://192.168.1.11:5000",
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "979d8021-057d-4b05-a0da-cb1ad114debc"
+      }
+    },
+    "platforms": [
+      "ios",
+      "android"
+    ],
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "skyplate",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/images/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#000000"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "permissions": [
+        "ACCESS_BACKGROUND_LOCATION"
+      ],
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.momin_001.Skyplate"
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      "expo-secure-store",
+      "expo-web-browser",
+      "expo-image-picker",
+      [
+        "expo-notifications",
+        {
+          "color": "#e11d48",
+          "defaultChannel": "orders"
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "owner": "momin_001"
+  }
+}
