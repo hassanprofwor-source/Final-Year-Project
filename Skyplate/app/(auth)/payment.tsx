@@ -39,7 +39,16 @@ const PaymentScreen = () => {
   const CartList = useStore((state: any) => state.CartList);
   const CartPrice = useStore((state: any) => state.CartPrice);
   const emptyCart = useStore((state: any) => state.emptyCart);
-  const { orderType, phone, address } = useLocalSearchParams();
+  const params = useLocalSearchParams();
+  const first = (value: string | string[] | undefined) =>
+    Array.isArray(value) ? value[0] : value;
+  const orderType = first(params.orderType);
+  const phone = first(params.phone);
+  const address = first(params.address);
+  const date = first(params.date);
+  const time = first(params.time);
+  const people = first(params.people);
+  const tableNumber = first(params.tableNumber);
   const { user } = useUser();
   const router = useRouter();
   const [paymentMode, setPaymentMode] = useState('Pay With Card');
@@ -48,14 +57,34 @@ const PaymentScreen = () => {
   const submittingRef = useRef(false);
 
   const formattedCartItems = CartList.flatMap((item: any) =>
-    item.prices.map((p: any) => ({
-      name: item.name,
-      image: item.imagelink,
-      size: p.size,
-      quantity: p.quantity,
-      price: p.price,
-    }))
+    (item.prices || [])
+      .filter((p: any) => Number(p.quantity) > 0)
+      .map((p: any) => ({
+        name: item.name,
+        image: item.imagelink || item.image?.url || item.image || '',
+        size: p.size,
+        quantity: Number(p.quantity),
+        price: Number(p.price),
+      }))
   );
+
+  const buildOrderPayload = (payment: string) => ({
+    email: user?.primaryEmailAddress?.emailAddress || '',
+    phone: String(phone || ''),
+    address: String(address || ''),
+    orderType: String(orderType || ''),
+    payment,
+    total: Number(CartPrice),
+    cartItems: formattedCartItems,
+    ...(orderType === 'Dine In'
+      ? {
+          date: String(date || ''),
+          time: String(time || ''),
+          people: Number(people),
+          tableNumber: Number(tableNumber),
+        }
+      : {}),
+  });
 
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
 
@@ -107,7 +136,7 @@ const PaymentScreen = () => {
     setBusy(true);
 
     try {
-      if (!orderType || !phone || !address) {
+      if (!orderType || !phone || (orderType === 'Delivery' && !address)) {
         Toast.show({
           type: 'error',
           text1: 'Missing Info',
@@ -115,9 +144,17 @@ const PaymentScreen = () => {
         });
         return;
       }
+      if (orderType === 'Dine In' && (!date || !time || !people || !tableNumber)) {
+        Toast.show({
+          type: 'error',
+          text1: 'Missing seating',
+          text2: 'Go back and choose date, time, guests, and a table.',
+        });
+        return;
+      }
 
       const response = await api.get(
-        `/api/v1/order/getOrder/${user?.primaryEmailAddress?.emailAddress}`
+        `/api/v1/order/getOrder/${encodeURIComponent(user?.primaryEmailAddress?.emailAddress || '')}`
       );
       const pending = response.data.data?.pending || [];
       const accepted = response.data.data?.accepted || [];
@@ -149,34 +186,12 @@ const PaymentScreen = () => {
           return;
         }
 
-        const formData = new FormData();
-        formData.append('email', String(user?.primaryEmailAddress?.emailAddress || ''));
-        formData.append('phone', String(phone));
-        formData.append('address', String(address));
-        formData.append('orderType', String(orderType));
-        formData.append('payment', 'Paid');
-        formData.append('total', String(CartPrice));
-        formData.append('cartItems', JSON.stringify(formattedCartItems));
-
-        await api.post('/api/v1/order/saveOrder', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        });
+        await api.post('/api/v1/order/saveOrder', buildOrderPayload('Paid'));
         finishOrderSuccess();
         return;
       }
 
-      const formData = new FormData();
-      formData.append('email', String(user?.primaryEmailAddress?.emailAddress || ''));
-      formData.append('phone', String(phone));
-      formData.append('address', String(address));
-      formData.append('orderType', String(orderType));
-      formData.append('payment', 'Cash on Delivery');
-      formData.append('total', String(CartPrice));
-      formData.append('cartItems', JSON.stringify(formattedCartItems));
-
-      await api.post('/api/v1/order/saveOrder', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      await api.post('/api/v1/order/saveOrder', buildOrderPayload('Cash on Delivery'));
       Toast.show({
         type: 'success',
         text1: 'Order placed',

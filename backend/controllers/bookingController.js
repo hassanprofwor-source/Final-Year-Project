@@ -1,6 +1,7 @@
 import { catchAsyncErrors } from "../middlewares/catchAsyncErrors.js";
 import ErrorHandler from "../middlewares/error.js";
 import { Booking } from "../models/bookingSchema.js";
+import { Order } from "../models/orderSchema.js";
 import { TimeSlot } from "../models/timeSlotSchema.js";
 import { ensureDefaultTimeSlots, normalizeTime } from "./timeSlotController.js";
 import { sendPushToEmail } from "../utils/push.js";
@@ -68,9 +69,21 @@ export const getAvailability = catchAsyncErrors(async (req, res, next) => {
     status: { $ne: "Cancelled" },
   }).select("tableNumber -_id");
 
+  const seated = await Order.find({
+    orderType: "Dine In",
+    date,
+    time,
+    status: { $in: ["Pending", "Accepted"] },
+  }).select("tableNumber -_id");
+
+  const taken = [...new Set([
+    ...booked.map((item) => item.tableNumber),
+    ...seated.map((item) => item.tableNumber),
+  ])];
+
   res.status(200).json({
     success: true,
-    data: booked.map((item) => item.tableNumber),
+    data: taken,
   });
 });
 
