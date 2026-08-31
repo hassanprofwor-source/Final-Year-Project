@@ -68,9 +68,6 @@ const UserAccountScreen = () => {
               >
                 <SettingComponent icon="person" heading="Account" subheading="Edit your profile" />
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => router.navigate('/bookings')}>
-                <SettingComponent icon="calendar" heading="Bookings" subheading="Table reservations" />
-              </TouchableOpacity>
               <TouchableOpacity onPress={() => router.navigate('/history')}>
                 <SettingComponent icon="receipt" heading="Order history" subheading="Past orders" />
               </TouchableOpacity>

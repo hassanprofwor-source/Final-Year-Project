@@ -1,12 +1,12 @@
 import React, { useCallback, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { COLORS, FONTFAMILY, FONTSIZE, SPACING } from '../../theme/theme';
+import { COLORS, FONTFAMILY, FONTSIZE, SPACING } from '../../../theme/theme';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useUser } from '@clerk/expo';
 import Toast from 'react-native-toast-message';
 import { api, apiErrorMessage } from '@/lib/api';
 import Screen from '@/components/ui/Screen';
-import StackHeader from '@/components/ui/StackHeader';
+import HeaderBar from '../../../components/HeaderBar';
 import EmptyState from '@/components/ui/EmptyState';
 import Button from '@/components/ui/Button';
 import LoadingState from '@/components/ui/LoadingState';
@@ -71,7 +71,7 @@ const BookingsScreen = () => {
 
   return (
     <Screen>
-      <StackHeader title="Bookings" />
+      <HeaderBar title="Bookings" />
       <ScrollView contentContainerStyle={styles.scroll}>
         <View style={{ paddingHorizontal: SPACING.space_20, marginBottom: SPACING.space_16 }}>
           <Button title="Reserve a table" onPress={() => router.push('/reserve')} />
