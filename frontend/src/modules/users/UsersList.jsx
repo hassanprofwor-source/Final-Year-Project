@@ -1,14 +1,23 @@
 import React, { useMemo, useState } from "react";
 import { Users as UsersIcon, User } from "lucide-react";
+import { useUser } from "@clerk/react";
 import PageHeader from "../../components/ui/PageHeader";
 import DataTable from "../../components/ui/DataTable";
 import StatCard from "../../components/ui/StatCard";
+import RowActions from "../../components/ui/RowActions";
+import ConfirmDialog from "../../components/ui/ConfirmDialog";
 import { useUsersApi } from "./useUsersApi";
+import UserEditModal from "./UserEditModal";
 import { optimizedImageUrl } from "../../lib/media";
 
 const UsersList = () => {
-  const { users, loading } = useUsersApi();
+  const { user: clerkUser } = useUser();
+  const { users, loading, updateUser, deleteUser } = useUsersApi();
   const [search, setSearch] = useState("");
+  const [editingUser, setEditingUser] = useState(null);
+  const [pendingDelete, setPendingDelete] = useState(null);
+
+  const currentEmail = clerkUser?.primaryEmailAddress?.emailAddress?.toLowerCase();
 
   const filtered = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -46,7 +55,7 @@ const UsersList = () => {
 
   return (
     <div>
-      <PageHeader title="Users" description="Browse registered customer accounts." />
+      <PageHeader title="Users" description="View, edit, and remove customer accounts." />
 
       <div className="px-4 py-6 lg:px-8">
         <div className="mb-6">
@@ -62,8 +71,29 @@ const UsersList = () => {
           searchPlaceholder="Search by name or email..."
           emptyTitle="No users yet"
           emptyDescription="Registered customers will show up here."
+          actions={(u) => {
+            const isSelf = currentEmail && u.email?.toLowerCase() === currentEmail;
+            return (
+              <RowActions
+                items={[
+                  { label: "Edit", onClick: () => setEditingUser(u) },
+                  ...(!isSelf ? [{ label: "Delete", danger: true, onClick: () => setPendingDelete(u) }] : []),
+                ]}
+              />
+            );
+          }}
         />
       </div>
+
+      <UserEditModal user={editingUser} onClose={() => setEditingUser(null)} onSubmit={updateUser} />
+
+      <ConfirmDialog
+        open={!!pendingDelete}
+        onClose={() => setPendingDelete(null)}
+        onConfirm={() => pendingDelete && deleteUser(pendingDelete._id)}
+        title="Delete this user?"
+        message={`${pendingDelete?.firstname || ""} ${pendingDelete?.lastname || ""} (${pendingDelete?.email || ""}) will be removed from Skyplate and Clerk. This cannot be undone.`}
+      />
     </div>
   );
 };
