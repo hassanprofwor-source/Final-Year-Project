@@ -1,3 +1,4 @@
+import { getAuth } from "@clerk/express";
 import { catchAsyncErrors } from "../middlewares/catchAsyncErrors.js";
 import ErrorHandler from "../middlewares/error.js";
 import { Booking } from "../models/bookingSchema.js";
@@ -5,11 +6,85 @@ import { Order } from "../models/orderSchema.js";
 import { TimeSlot } from "../models/timeSlotSchema.js";
 import { ensureDefaultTimeSlots, normalizeTime } from "./timeSlotController.js";
 import { sendPushToEmail } from "../utils/push.js";
+import { notifyAdmin } from "../utils/notifyAdmin.js";
+import { stripe } from "../server.js";
+import { CURRENCY_CODE } from "../utils/currency.js";
+
+const RESERVATION_FEE_PENCE = 1000;
+const RESERVATION_CURRENCY = CURRENCY_CODE;
 
 const isTakenStatus = (status) => status !== "Cancelled";
+const isAdminRequest = (req) => {
+  try {
+    return getAuth(req).sessionClaims?.metadata?.role === "admin";
+  } catch {
+    return false;
+  }
+};
+
+export const createReservationPayment = catchAsyncErrors(async (req, res, next) => {
+  const { email } = req.body;
+  if (!email) {
+    return next(new ErrorHandler("Email is required to pay the reservation fee.", 400));
+  }
+
+  let customer;
+  const existingCustomers = await stripe.customers.list({
+    email,
+    limit: 1,
+  });
+
+  if (existingCustomers.data.length > 0) {
+    customer = existingCustomers.data[0];
+  } else {
+    customer = await stripe.customers.create({ email });
+  }
+
+  const ephemeralKey = await stripe.ephemeralKeys.create(
+    { customer: customer.id },
+    { apiVersion: "2025-03-31.basil" }
+  );
+
+  const paymentIntent = await stripe.paymentIntents.create({
+    amount: RESERVATION_FEE_PENCE,
+    currency: RESERVATION_CURRENCY,
+    customer: customer.id,
+    metadata: { purpose: "reservation_fee" },
+  });
+
+  res.json({
+    paymentIntent: paymentIntent.client_secret,
+    paymentIntentId: paymentIntent.id,
+    ephemeralKey: ephemeralKey.secret,
+    customer: customer.id,
+    publishableKey: process.env.STRIPE_PUBLISHABLE_KEY,
+  });
+});
+
+const verifyReservationPayment = async (stripePaymentIntentId) => {
+  if (!stripePaymentIntentId) {
+    throw new ErrorHandler("Please pay the £10 reservation fee first.", 400);
+  }
+
+  const alreadyUsed = await Booking.findOne({ stripePaymentIntentId });
+  if (alreadyUsed) {
+    throw new ErrorHandler("This payment has already been used for a reservation.", 409);
+  }
+
+  const paymentIntent = await stripe.paymentIntents.retrieve(stripePaymentIntentId);
+  if (
+    paymentIntent.status !== "succeeded" ||
+    paymentIntent.amount !== RESERVATION_FEE_PENCE ||
+    paymentIntent.currency !== RESERVATION_CURRENCY
+  ) {
+    throw new ErrorHandler("Reservation payment could not be verified.", 402);
+  }
+
+  return paymentIntent;
+};
 
 export const saveBooking = catchAsyncErrors(async (req, res, next) => {
-  const { time, date, tableNumber, people, email, status } = req.body;
+  const { time, date, tableNumber, people, email, status, stripePaymentIntentId } = req.body;
 
   if (!time || !date || !tableNumber || !people) {
     return next(new ErrorHandler("Please fill all required fields.", 400));
@@ -33,14 +108,41 @@ export const saveBooking = catchAsyncErrors(async (req, res, next) => {
     return next(new ErrorHandler("This table is already booked for that date and time.", 409));
   }
 
+  const customerEmail = email || "";
+  const adminBooking = isAdminRequest(req);
+  let paymentStatus = "waived";
+
+  if (!adminBooking && customerEmail) {
+    try {
+      await verifyReservationPayment(stripePaymentIntentId);
+    } catch (error) {
+      return next(error);
+    }
+    paymentStatus = "paid";
+  }
+
   const booking = await Booking.create({
     time: availableSlot.time,
     date,
     tableNumber: Number(tableNumber),
     people: Number(people),
-    email: email || "",
-    status: status || (email ? "Pending" : "Confirmed"),
+    email: customerEmail,
+    status: status || (customerEmail ? "Pending" : "Confirmed"),
+    reservationFee: 10,
+    currency: RESERVATION_CURRENCY,
+    paymentStatus,
+    stripePaymentIntentId: paymentStatus === "paid" ? stripePaymentIntentId : "",
   });
+
+  if (!adminBooking && customerEmail) {
+    await notifyAdmin({
+      type: "booking",
+      title: "New table booking",
+      body: `${customerEmail} requested Table ${booking.tableNumber} on ${booking.date} at ${booking.time}.`,
+      link: "/Manage/Tables",
+      refId: booking._id,
+    });
+  }
 
   res.status(201).json({
     success: true,

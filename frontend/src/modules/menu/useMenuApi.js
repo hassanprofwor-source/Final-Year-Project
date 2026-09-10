@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import apiClient from "../../lib/apiClient";
 import { toast } from "react-toastify";
+import { CURRENCY_SYMBOL } from "../../lib/currency";
 
 const apiUrl = import.meta.env.VITE_SERVER_URL;
 
@@ -41,7 +42,7 @@ export const useMenuApi = () => {
         formData.sizes.map((size) => ({
           size,
           price: formData.prices[size],
-          currency: "Rs",
+          currency: CURRENCY_SYMBOL,
         }))
       )
     );
@@ -68,7 +69,7 @@ export const useMenuApi = () => {
         formData.sizes.map((size) => ({
           size,
           price: formData.prices[size],
-          currency: "Rs",
+          currency: CURRENCY_SYMBOL,
         }))
       )
     );

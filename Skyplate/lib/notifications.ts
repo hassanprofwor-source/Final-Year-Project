@@ -4,6 +4,9 @@ import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
 import { router } from 'expo-router';
 import { api } from '@/lib/api';
+import { pathFromPushScreen } from '@/lib/pushRoute';
+
+export { pathFromPushScreen };
 
 let pushReady = false;
 
@@ -21,10 +24,8 @@ export const setupNotificationHandler = () => {
 };
 
 export const routeFromPushData = (data?: Record<string, unknown>) => {
-  const screen = String(data?.screen || '');
-  if (screen === 'accepted') router.replace('/accepted');
-  else if (screen === 'pending') router.replace('/pending');
-  else if (screen === 'home') router.replace('/home');
+  const path = pathFromPushScreen(String(data?.screen || ''));
+  if (path) router.replace(path);
 };
 
 export const registerPushToken = async (email?: string | null) => {

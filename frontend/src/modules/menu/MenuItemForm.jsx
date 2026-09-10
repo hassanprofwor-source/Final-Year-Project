@@ -266,7 +266,7 @@ const MenuItemForm = ({ mode, initialFood, onSubmit }) => {
 
         {sizeOptions === "R" ? (
           <input
-            placeholder="Price (Regular)"
+            placeholder="Price (£ Regular)"
             value={formData.prices.R}
             onChange={(e) => handlePriceChange("R", e.target.value)}
             required
@@ -275,19 +275,19 @@ const MenuItemForm = ({ mode, initialFood, onSubmit }) => {
         ) : (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <input
-              placeholder="Price (Small)"
+              placeholder="Price (£ Small)"
               value={formData.prices.S}
               onChange={(e) => handlePriceChange("S", e.target.value)}
               className={inputClass}
             />
             <input
-              placeholder="Price (Medium)"
+              placeholder="Price (£ Medium)"
               value={formData.prices.M}
               onChange={(e) => handlePriceChange("M", e.target.value)}
               className={inputClass}
             />
             <input
-              placeholder="Price (Large)"
+              placeholder="Price (£ Large)"
               value={formData.prices.L}
               onChange={(e) => handlePriceChange("L", e.target.value)}
               className={inputClass}

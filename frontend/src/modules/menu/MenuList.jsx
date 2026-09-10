@@ -10,13 +10,14 @@ import StatCard from "../../components/ui/StatCard";
 import Badge from "../../components/ui/Badge";
 import { useMenuApi } from "./useMenuApi";
 import { optimizedImageUrl } from "../../lib/media";
+import { formatMoney } from "../../lib/currency";
 
 const formatPrice = (food) => {
   const prices = food.prices?.map((p) => Number(p.price)).filter((n) => !Number.isNaN(n)) || [];
   if (prices.length === 0) return "—";
   const min = Math.min(...prices);
   const max = Math.max(...prices);
-  return min === max ? `Rs ${min}` : `Rs ${min} - ${max}`;
+  return min === max ? formatMoney(min) : `${formatMoney(min)} - ${formatMoney(max)}`;
 };
 
 const MAX_WEATHER_BADGES = 2;

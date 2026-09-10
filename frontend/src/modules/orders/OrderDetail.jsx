@@ -7,6 +7,7 @@ import Badge from "../../components/ui/Badge";
 import Button from "../../components/ui/Button";
 import { useOrders } from "./useOrders";
 import { optimizedImageUrl } from "../../lib/media";
+import { formatMoney } from "../../lib/currency";
 
 const statusTone = { Pending: "pending", Accepted: "accepted", Completed: "completed" };
 const basePathFor = (orderType) => (orderType === "Delivery" ? "/Delivery" : "/DineIn");
@@ -98,14 +99,14 @@ const OrderDetail = ({ orderType }) => {
                     <p className="text-sm font-semibold text-white">
                       <span className="text-red">[{item.size?.toUpperCase()}]</span> {item.name} x{item.quantity}
                     </p>
-                    <p className="text-xs text-gray">Rs {item.price.toFixed(2)}</p>
+                    <p className="text-xs text-gray">{formatMoney(item.price.toFixed(2))}</p>
                   </div>
                 </div>
               ))}
             </div>
             <div className="mt-4 border-t border-gray/20 pt-4 text-right">
               <span className="text-lg font-bold text-white">
-                Total: <span className="text-red">Rs {order.total.toFixed(2)}</span>
+                Total: <span className="text-red">{formatMoney(order.total.toFixed(2))}</span>
               </span>
             </div>
           </Section>

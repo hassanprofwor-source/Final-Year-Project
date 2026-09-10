@@ -16,6 +16,7 @@ import itemTypeRouter from './router/itemTypeRouter.js'
 import weatherRouter from './router/weatherRouter.js'
 import analyticsRouter from './router/analyticsRouter.js'
 import timeSlotRouter from './router/timeSlotRouter.js'
+import notificationRouter from './router/notificationRouter.js'
 
 const app = express();
 config();
@@ -41,6 +42,7 @@ app.use("/api/v1/itemType", itemTypeRouter);
 app.use("/api/v1/weather", weatherRouter);
 app.use("/api/v1/analytics", analyticsRouter);
 app.use("/api/v1/timeslot", timeSlotRouter);
+app.use("/api/v1/notifications", notificationRouter);
 
 connection();
 app.use(errorMiddleware);

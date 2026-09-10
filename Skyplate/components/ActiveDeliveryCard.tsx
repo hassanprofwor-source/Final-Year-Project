@@ -2,6 +2,7 @@ import React from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 import { COLORS, FONTFAMILY, FONTSIZE, SPACING } from '@/theme/theme';
 import { optimizedImageUrl } from '@/lib/media';
+import { formatMoney } from '@/lib/currency';
 
 const ActiveDeliveryCard = ({ order }: { order: any }) => {
   const items = order?.cartItems || [];
@@ -28,14 +29,14 @@ const ActiveDeliveryCard = ({ order }: { order: any }) => {
                 {item.size ? `${String(item.size).toUpperCase()} · ` : ''}x{item.quantity}
               </Text>
             </View>
-            <Text style={styles.price}>Rs {Number(item.price) * Number(item.quantity || 1)}</Text>
+            <Text style={styles.price}>{formatMoney(Number(item.price) * Number(item.quantity || 1))}</Text>
           </View>
         ))}
       </View>
 
       <View style={styles.totalRow}>
         <Text style={styles.totalLabel}>Total</Text>
-        <Text style={styles.totalValue}>Rs {order.total}</Text>
+        <Text style={styles.totalValue}>{formatMoney(order.total)}</Text>
       </View>
     </View>
   );

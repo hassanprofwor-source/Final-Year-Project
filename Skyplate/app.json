@@ -20,11 +20,6 @@
     "icon": "./assets/images/icon.png",
     "scheme": "skyplate",
     "userInterfaceStyle": "automatic",
-    "splash": {
-      "image": "./assets/images/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#000000"
-    },
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
@@ -65,7 +60,24 @@
           "color": "#e11d48",
           "defaultChannel": "orders"
         }
-      ]
+      ],
+      [
+        "@stripe/stripe-react-native",
+        {
+          "enableGooglePay": false,
+          "merchantIdentifier": ""
+        }
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/splash.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#000000"
+        }
+      ],
+      "expo-status-bar"
     ],
     "experiments": {
       "typedRoutes": true

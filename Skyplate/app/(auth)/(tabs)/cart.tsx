@@ -71,7 +71,7 @@ const CartScreen = () => {
         )}
       </ScrollView>
       {CartList.length !== 0 ? (
-        <PaymentFooter buttonPressHandler={handleContinue} buttonTitle="Continue" price={{ price: CartPrice, currency: 'Rs' }} />
+        <PaymentFooter buttonPressHandler={handleContinue} buttonTitle="Continue" price={{ price: CartPrice, currency: '£' }} />
       ) : null}
     </Screen>
   );

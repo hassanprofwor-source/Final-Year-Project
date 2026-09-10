@@ -56,14 +56,20 @@ export const getMyFeedback = catchAsyncErrors(async (req, res, next) => {
 
 export const sendEmail = catchAsyncErrors(async (req, res, next) => {
   const { email, subject, message } = req.body;
+  if (!email || !subject || !message) {
+    return next(new ErrorHandler("Email, subject, and message are required.", 400));
+  }
+
+  const smtpPort = Number(process.env.SMTP_PORT) || 465;
   try {
       const transporter = nodemailer.createTransport({
           host: process.env.SMTP_HOST,
-          port: process.env.SMTP_PORT,
+          port: smtpPort,
+          secure: smtpPort === 465,
           service: process.env.SMTP_SERVICE,
           auth: {
               user: process.env.SMTP_MAIL,
-              pass: process.env.SMTP_PASSWORD,
+              pass: (process.env.SMTP_PASSWORD || "").replace(/\s/g, ""),
           },
       });
 
@@ -77,7 +83,11 @@ export const sendEmail = catchAsyncErrors(async (req, res, next) => {
       res.status(200).json({ success: true, message: 'Email sent successfully!' });
   } catch (error) {
       console.error(error);
-      res.status(500).json({ success: false, message: 'Failed to send email' });
+      const message =
+        error.code === "EAUTH"
+          ? "Gmail rejected the SMTP login. Set SMTP_PASSWORD to a 16-character App Password (2-Step Verification must be on)."
+          : "Failed to send email";
+      res.status(500).json({ success: false, message });
   }
 });
 

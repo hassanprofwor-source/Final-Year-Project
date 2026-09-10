@@ -85,10 +85,9 @@ const Footer = () => {
           {
             heading: "1. Table Reservation Fee",
             points: [
-              "A PKR 300 advance payment is required to reserve a table.",
+              "A £10 reservation fee is required to reserve a table from the app.",
               "This amount is deducted from your final bill at the restaurant.",
-              "No-shows are non-refundable.",
-              "If you cancel your reservation in advance, the PKR 300 will be refunded to your payment method.",
+              "The £10 reservation fee is non-refundable, including cancellations and no-shows.",
             ],
           },
           {

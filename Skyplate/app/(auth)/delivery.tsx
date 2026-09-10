@@ -6,6 +6,7 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import Toast from 'react-native-toast-message';
 import { COLORS, FONTFAMILY, FONTSIZE, SPACING } from '@/theme/theme';
 import { api, apiErrorMessage } from '@/lib/api';
+import { formatPhone, isValidPkPhone } from '@/lib/phone';
 import { useStore } from '@/store/store';
 import Screen from '@/components/ui/Screen';
 import StackHeader from '@/components/ui/StackHeader';
@@ -37,14 +38,6 @@ const timeSlotsForDate = (slots: string[], selectedDate: string) => {
     const [hour, minute] = slot.split(':').map(Number);
     return hour * 60 + (minute || 0) > currentMinutes;
   });
-};
-
-const formatPhone = (value: string) => {
-  let formattedValue = value.replace(/\D/g, '').slice(0, 11);
-  if (formattedValue.length > 4) {
-    formattedValue = `${formattedValue.slice(0, 4)}-${formattedValue.slice(4)}`;
-  }
-  return formattedValue;
 };
 
 const Delivery = () => {
@@ -129,7 +122,7 @@ const Delivery = () => {
   }, [delivery, selectedDate, selectedTime]);
 
   const handleContinue = () => {
-    if (phoneNumber.length !== 12) {
+    if (!isValidPkPhone(phoneNumber)) {
       setError('Use format 0300-1234567');
       return;
     }

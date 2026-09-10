@@ -3,6 +3,7 @@ import React from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BORDERRADIUS, COLORS, FONTFAMILY, FONTSIZE, SPACING } from '../theme/theme';
 import { optimizedImageUrl } from '@/lib/media';
+import { CURRENCY_SYMBOL } from '@/lib/currency';
 
 interface OrderItemCardProps {
   name: string;
@@ -62,7 +63,7 @@ const OrderItemCard: React.FC<OrderItemCardProps> = ({
                 </View>
                 <View style={styles.PriceBoxRight}>
                   <Text style={styles.PriceCurrency}>
-                    Rs <Text style={styles.Price}>{totalPrice}</Text>
+                    {CURRENCY_SYMBOL} <Text style={styles.Price}>{totalPrice}</Text>
                   </Text>
                 </View>
               </View>

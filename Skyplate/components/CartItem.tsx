@@ -16,6 +16,7 @@ import {
 } from '../theme/theme';
 import CustomIcon from './CustomIcon';
 import { optimizedImageUrl } from '@/lib/media';
+import { CURRENCY_SYMBOL } from '@/lib/currency';
 
 interface CartItemProps {
   id: string;
@@ -68,7 +69,7 @@ const CartItem: React.FC<CartItemProps> = ({
                   </Text>
                 </View>
                 <Text style={styles.SizeCurrency}>
-                  {data.currency}
+                  {CURRENCY_SYMBOL}
                   <Text style={styles.SizePrice}> {data.price}</Text>
                 </Text>
               </View>
@@ -128,7 +129,7 @@ const CartItem: React.FC<CartItemProps> = ({
                 </Text>
               </View>
               <Text style={styles.SizeCurrency}>
-                {prices[0].currency}
+                {CURRENCY_SYMBOL}
                 <Text style={styles.SizePrice}> {prices[0].price}</Text>
               </Text>
             </View>

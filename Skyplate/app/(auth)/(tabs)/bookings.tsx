@@ -52,7 +52,11 @@ const BookingsScreen = () => {
     setCancellingId(booking._id);
     try {
       await api.post('/api/v1/booking/cancelMyBooking', { id: booking._id, email });
-      Toast.show({ type: 'success', text1: 'Reservation cancelled' });
+      Toast.show({
+        type: 'success',
+        text1: 'Reservation cancelled',
+        text2: 'The £10 reservation fee is non-refundable.',
+      });
       setReservations((current) =>
         current.map((item) => (item._id === booking._id ? { ...item, status: 'Cancelled' } : item)),
       );
@@ -86,6 +90,9 @@ const BookingsScreen = () => {
               <View key={booking._id} style={styles.card}>
                 <Text style={styles.title}>Table {booking.tableNumber}</Text>
                 <Text style={styles.meta}>{booking.date} · {booking.time} · {booking.people} guests</Text>
+                {booking.paymentStatus === 'paid' ? (
+                  <Text style={styles.fee}>£10 fee paid — deducted from your bill</Text>
+                ) : null}
                 <Text style={[styles.status, booking.status === 'Cancelled' && styles.statusCancelled]}>
                   {booking.status}
                 </Text>
@@ -109,7 +116,7 @@ const BookingsScreen = () => {
             {dineInOrders.map((order: any) => (
               <View key={order._id} style={styles.card}>
                 <Text style={styles.title}>{order.orderType} · Table {order.tableNumber || '—'}</Text>
-                <Text style={styles.meta}>{order.date} · {order.time} · Rs {order.total}</Text>
+                <Text style={styles.meta}>{order.date} · {order.time} · £{order.total}</Text>
                 <Text style={styles.status}>{order.status}</Text>
               </View>
             ))}
@@ -132,6 +139,7 @@ const styles = StyleSheet.create({
   },
   title: { color: COLORS.White, fontFamily: FONTFAMILY.semibold, fontSize: FONTSIZE.size_16 },
   meta: { color: COLORS.primaryLightGreyHex, marginTop: 4 },
+  fee: { color: COLORS.White, marginTop: 6, fontFamily: FONTFAMILY.medium, fontSize: FONTSIZE.size_12 },
   status: { color: COLORS.Yellow, marginTop: 8, fontFamily: FONTFAMILY.medium },
   statusCancelled: { color: COLORS.primaryLightGreyHex },
   actions: { marginTop: 12 },

@@ -3,6 +3,7 @@ import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-nati
 import { useRouter } from "expo-router";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { useUser } from "@clerk/expo";
+import { useStripe } from "@stripe/stripe-react-native";
 import Toast from "react-native-toast-message";
 import Screen from '@/components/ui/Screen';
 import StackHeader from '@/components/ui/StackHeader';
@@ -53,6 +54,8 @@ const ReserveScreen = () => {
   const [selectedTable, setSelectedTable] = useState<number | null>(null);
   const [takenTables, setTakenTables] = useState<number[]>([]);
   const [configuredSlots, setConfiguredSlots] = useState<string[]>(DEFAULT_TIME_SLOTS);
+  const [busy, setBusy] = useState(false);
+  const { initPaymentSheet, presentPaymentSheet } = useStripe();
 
   const timeSlots = useMemo(
     () => timeSlotsForDate(configuredSlots, selectedDate),
@@ -101,24 +104,57 @@ const ReserveScreen = () => {
 
   const handleReserve = async () => {
     const people = parseInt(peopleCount, 10);
+    const email = user?.primaryEmailAddress?.emailAddress;
     if (!selectedDate || !selectedTime || !selectedTable || !people) {
       Toast.show({ type: "error", text1: "Please choose date, time, guests and a table" });
       return;
     }
+    if (!email) {
+      Toast.show({ type: "error", text1: "Sign in required", text2: "A signed-in email is needed to pay the reservation fee." });
+      return;
+    }
 
+    setBusy(true);
     try {
+      const paymentRes = await api.post("/api/v1/booking/create-reservation-payment", { email });
+      const { paymentIntent, ephemeralKey, customer, paymentIntentId } = paymentRes.data;
+
+      const { error: initError } = await initPaymentSheet({
+        merchantDisplayName: "Skyplate",
+        customerId: customer,
+        customerEphemeralKeySecret: ephemeralKey,
+        paymentIntentClientSecret: paymentIntent,
+        defaultBillingDetails: {
+          name: (user?.fullName ?? undefined) as string | undefined,
+        },
+      });
+      if (initError) {
+        throw new Error(initError.message || "Could not open card payment");
+      }
+
+      const { error: payError } = await presentPaymentSheet();
+      if (payError) {
+        Toast.show({
+          type: "info",
+          text1: "Payment cancelled",
+          text2: payError.message || "The £10 reservation fee was not charged.",
+        });
+        return;
+      }
+
       await api.post("/api/v1/booking/saveBooking", {
         date: selectedDate,
         time: selectedTime,
         tableNumber: selectedTable,
         people,
-        email: user?.primaryEmailAddress?.emailAddress,
+        email,
         status: "Pending",
+        stripePaymentIntentId: paymentIntentId,
       });
       Toast.show({
         type: "success",
         text1: "Reservation requested",
-        text2: "Wait for the restaurant to confirm your table.",
+        text2: "£10 fee paid. Wait for the restaurant to confirm your table.",
       });
       router.replace("/bookings");
     } catch (error: any) {
@@ -127,6 +163,8 @@ const ReserveScreen = () => {
         text1: "Could not reserve",
         text2: apiErrorMessage(error, "Could not reserve"),
       });
+    } finally {
+      setBusy(false);
     }
   };
 
@@ -202,7 +240,14 @@ const ReserveScreen = () => {
           })}
         </View>
 
-        <Button title="Request reservation" onPress={handleReserve} />
+        <View style={styles.warning}>
+          <Text style={styles.warningTitle}>Non-refundable £10 reservation fee</Text>
+          <Text style={styles.warningBody}>
+            A non-refundable £10 reservation fee will be charged. This amount will be deducted from your bill at the restaurant.
+          </Text>
+        </View>
+
+        <Button title="Pay £10 and reserve" onPress={handleReserve} loading={busy} />
       </ScrollView>
     </Screen>
   );
@@ -245,6 +290,26 @@ const styles = StyleSheet.create({
   tableDisabled: { opacity: 0.35 },
   tableText: { color: COLORS.primaryWhiteHex, marginTop: 4, fontFamily: FONTFAMILY.medium },
   tableSub: { color: COLORS.primaryLightGreyHex, fontSize: 12 },
+  warning: {
+    borderWidth: 1,
+    borderColor: COLORS.primaryRedHex,
+    backgroundColor: COLORS.elevated,
+    borderRadius: 12,
+    padding: 14,
+    marginBottom: 16,
+  },
+  warningTitle: {
+    color: COLORS.White,
+    fontFamily: FONTFAMILY.semibold,
+    fontSize: FONTSIZE.size_14,
+    marginBottom: 6,
+  },
+  warningBody: {
+    color: COLORS.primaryLightGreyHex,
+    fontFamily: FONTFAMILY.medium,
+    fontSize: FONTSIZE.size_12,
+    lineHeight: 18,
+  },
 });
 
 export default ReserveScreen;

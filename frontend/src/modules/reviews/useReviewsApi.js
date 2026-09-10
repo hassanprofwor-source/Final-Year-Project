@@ -28,7 +28,7 @@ export const useReviewsApi = () => {
   const replyToReview = async (review, replyText) => {
     if (!replyText) {
       toast.error("Feedback Response is Empty");
-      return;
+      throw new Error("Feedback Response is Empty");
     }
 
     const subject = "Feedback Response";
@@ -41,23 +41,28 @@ export const useReviewsApi = () => {
         message,
       });
 
-      if (response.data.success) {
-        try {
-          await apiClient.put(
-            `${apiUrl}/api/v1/feedback/updatefeedback/${review._id}`,
-            { response: replyText },
-            { headers: { "Content-Type": "application/json" } }
-          );
-          fetchFeedbacks();
-          toast.success("Replied to the Feedback successfully");
-        } catch (error) {
-          toast.error(error.response?.data?.message || "Failed to save reply");
-        }
-      } else {
+      if (!response.data.success) {
         toast.error("Failed to send email");
+        throw new Error("Failed to send email");
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to send email");
+      if (error.message !== "Failed to send email") {
+        toast.error(error.response?.data?.message || "Failed to send email");
+      }
+      throw error;
+    }
+
+    try {
+      await apiClient.put(
+        `${apiUrl}/api/v1/feedback/updatefeedback/${review._id}`,
+        { response: replyText },
+        { headers: { "Content-Type": "application/json" } }
+      );
+      fetchFeedbacks();
+      toast.success("Replied to the Feedback successfully");
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to save reply");
+      throw error;
     }
   };
 

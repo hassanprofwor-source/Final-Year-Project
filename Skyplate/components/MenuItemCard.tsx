@@ -16,6 +16,7 @@ import {
 } from '../theme/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { optimizedImageUrl } from '@/lib/media';
+import { CURRENCY_SYMBOL } from '@/lib/currency';
 
 const CARD_WIDTH = Dimensions.get('window').width * 0.42;
 
@@ -60,7 +61,7 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({
       <Text style={styles.subtitle} numberOfLines={1}>{special_ingredient}</Text>
       <View style={styles.footer}>
         <Text style={styles.price}>
-          Rs <Text style={styles.priceValue}>{price.price}</Text>
+          {CURRENCY_SYMBOL} <Text style={styles.priceValue}>{price.price}</Text>
         </Text>
         <TouchableOpacity
           style={styles.add}

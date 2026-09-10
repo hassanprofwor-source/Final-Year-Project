@@ -8,6 +8,7 @@ import Badge from "../../components/ui/Badge";
 import Tabs from "../../components/ui/Tabs";
 import StatCard from "../../components/ui/StatCard";
 import { useOrders } from "./useOrders";
+import { formatMoney } from "../../lib/currency";
 
 const statusTone = { Pending: "pending", Accepted: "accepted", Completed: "completed" };
 
@@ -75,7 +76,7 @@ const OrderTable = ({ orderType }) => {
           },
         ]),
     { key: "items", header: "Items", render: (o) => `${o.cartItems?.length || 0} item(s)` },
-    { key: "total", header: "Total", render: (o) => `Rs ${o.total?.toFixed(2)}` },
+    { key: "total", header: "Total", render: (o) => formatMoney(o.total?.toFixed(2)) },
     { key: "payment", header: "Payment", render: (o) => o.payment },
     {
       key: "status",

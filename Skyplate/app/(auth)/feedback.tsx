@@ -9,14 +9,7 @@ import TextField from '@/components/ui/TextField';
 import Button from '@/components/ui/Button';
 import { COLORS, FONTFAMILY, FONTSIZE, SPACING } from '@/theme/theme';
 import { api, apiErrorMessage } from '@/lib/api';
-
-const formatPhone = (value: string) => {
-  let formattedValue = value.replace(/\D/g, '').slice(0, 11);
-  if (formattedValue.length > 4) {
-    formattedValue = `${formattedValue.slice(0, 4)}-${formattedValue.slice(4)}`;
-  }
-  return formattedValue;
-};
+import { formatPhone, isValidPkPhone } from '@/lib/phone';
 
 const Feedback = () => {
   const { firstname, phone, imgurl } = useLocalSearchParams();
@@ -68,7 +61,7 @@ const Feedback = () => {
       Toast.show({ type: 'error', text1: 'Error', text2: 'Phone number is required' });
       return;
     }
-    if (formData.phoneNumber.length !== 12) {
+    if (!isValidPkPhone(formData.phoneNumber)) {
       setError('Use format 0300-1234567');
       return;
     }

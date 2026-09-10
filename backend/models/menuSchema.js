@@ -40,7 +40,7 @@ const FoodItemSchema = new mongoose.Schema(
       {
         size: { type: String, },
         price: { type: Number, },
-        currency: { type: String, default: 'Rs' },
+        currency: { type: String, default: '£' },
       },
     ],
   },

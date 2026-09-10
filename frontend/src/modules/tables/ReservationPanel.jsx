@@ -262,7 +262,12 @@ const ReservationPanel = ({ tables }) => {
                     {booking.people} guests{booking.email ? ` · ${booking.email}` : ""}
                   </p>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center gap-3">
+                  {booking.paymentStatus === "paid" ? (
+                    <Badge tone="completed">£10 paid — deduct from bill</Badge>
+                  ) : (
+                    <Badge tone="neutral">Fee waived</Badge>
+                  )}
                   <Badge tone={statusTone[booking.status] || "neutral"}>{booking.status}</Badge>
                   {booking.status === "Pending" && (
                     <Button onClick={() => updateBooking(booking._id, "Confirmed")}>Confirm</Button>

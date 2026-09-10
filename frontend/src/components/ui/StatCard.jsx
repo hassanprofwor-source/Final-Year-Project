@@ -1,6 +1,6 @@
 import React from "react";
 
-const StatCard = ({ label, value, icon: Icon }) => {
+const StatCard = ({ label, value, icon: Icon, hint }) => {
   return (
     <div className="flex items-center gap-4 rounded-2xl border border-white/8 bg-surface p-4">
       {Icon && (
@@ -11,6 +11,7 @@ const StatCard = ({ label, value, icon: Icon }) => {
       <div>
         <p className="text-xs text-gray">{label}</p>
         <p className="text-xl font-semibold text-white">{value}</p>
+        {hint && <p className="mt-0.5 text-xs text-gray">{hint}</p>}
       </div>
     </div>
   );

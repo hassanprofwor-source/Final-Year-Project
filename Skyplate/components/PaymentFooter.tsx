@@ -7,6 +7,7 @@ import {
   FONTSIZE,
   SPACING,
 } from '../theme/theme';
+import { CURRENCY_SYMBOL } from '@/lib/currency';
 
 interface PriceProps {
   price: string;
@@ -31,7 +32,7 @@ const PaymentFooter: React.FC<PaymentFooterProps> = ({
       <View style={styles.PriceContainer}>
         <Text style={styles.PriceTitle}>Price</Text>
         <Text style={styles.PriceText}>
-          {price.currency} <Text style={styles.Price}>{price.price}</Text>
+          {CURRENCY_SYMBOL} <Text style={styles.Price}>{price.price}</Text>
         </Text>
       </View>
       <TouchableOpacity

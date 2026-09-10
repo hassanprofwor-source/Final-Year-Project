@@ -6,3 +6,4 @@ numpy==2.2.6
 pandas==2.2.3
 scikit-learn==1.7.1
 joblib==1.5.1
+tzdata==2026.3

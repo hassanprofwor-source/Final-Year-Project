@@ -1,9 +1,11 @@
 import { catchAsyncErrors } from "../middlewares/catchAsyncErrors.js";
+import { CURRENCY_CODE } from "../utils/currency.js";
 import ErrorHandler from "../middlewares/error.js";
 import { Order } from "../models/orderSchema.js";
 import { Booking } from "../models/bookingSchema.js";
 import { stripe } from "../server.js";
 import { sendPushToEmail } from "../utils/push.js";
+import { notifyAdmin } from "../utils/notifyAdmin.js";
 
 export const saveOrder = catchAsyncErrors(async (req, res, next) => {
   const { email, phone, total, address, people, tableNumber, date, time, payment } = req.body;
@@ -58,6 +60,14 @@ export const saveOrder = catchAsyncErrors(async (req, res, next) => {
       cartItems,
     });
 
+    await notifyAdmin({
+      type: "delivery",
+      title: "New delivery order",
+      body: `${email} placed a delivery order totalling ${parsedTotal}.`,
+      link: "/Delivery",
+      refId: order._id,
+    });
+
     return res.status(201).json({
       success: true,
       message: "Order placed successfully.",
@@ -102,6 +112,14 @@ export const saveOrder = catchAsyncErrors(async (req, res, next) => {
     date,
     time,
     tableNumber: Number(tableNumber),
+  });
+
+  await notifyAdmin({
+    type: "dine_in",
+    title: "New dine-in order",
+    body: `${email} placed a dine-in order for Table ${tableNumber} on ${date} at ${time}.`,
+    link: "/DineIn",
+    refId: order._id,
   });
 
   res.status(201).json({
@@ -290,8 +308,8 @@ export const cancelPendingOrder = catchAsyncErrors(async (req, res, next) => {
     );
   
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: 300 * 100,
-      currency: 'pkr',
+      amount: Math.round(Number(CartPrice) * 100),
+      currency: CURRENCY_CODE,
       customer: customer.id,
     });
   
@@ -327,8 +345,8 @@ export const cancelPendingOrder = catchAsyncErrors(async (req, res, next) => {
     );
   
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: CartPrice * 100,
-      currency: 'pkr',
+      amount: Math.round(Number(CartPrice) * 100),
+      currency: CURRENCY_CODE,
       customer: customer.id,
     });
   

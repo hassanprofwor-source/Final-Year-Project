@@ -43,7 +43,7 @@ const modules = [
     name: "Analytics",
     href: "/Analytics",
     icon: BarChart3,
-    description: "View machine-learning peak hours predictions.",
+    description: "View busy hours and best-selling dishes.",
   },
 ];
 

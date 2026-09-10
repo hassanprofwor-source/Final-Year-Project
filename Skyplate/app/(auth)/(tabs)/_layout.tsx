@@ -44,6 +44,16 @@ const TabsPage = () => {
         redirect={!isSignedIn}
       />
       <Tabs.Screen
+        name="bookings"
+        options={{
+          title: 'Bookings',
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons name={focused ? 'calendar' : 'calendar-outline'} size={22} color={color} />
+          ),
+        }}
+        redirect={!isSignedIn}
+      />
+      <Tabs.Screen
         name="cart"
         options={{
           title: 'Cart',
@@ -55,16 +65,6 @@ const TabsPage = () => {
           },
           tabBarIcon: ({ color, focused }) => (
             <Ionicons name={focused ? 'cart' : 'cart-outline'} size={22} color={color} />
-          ),
-        }}
-        redirect={!isSignedIn}
-      />
-      <Tabs.Screen
-        name="bookings"
-        options={{
-          title: 'Bookings',
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'calendar' : 'calendar-outline'} size={22} color={color} />
           ),
         }}
         redirect={!isSignedIn}

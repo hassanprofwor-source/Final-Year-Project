@@ -299,7 +299,7 @@ const PaymentScreen = () => {
           </ScrollView>
           <PaymentFooter
             buttonTitle={busy ? 'Please wait…' : `${paymentMode}`}
-            price={{ price: CartPrice, currency: 'Rs' }}
+            price={{ price: CartPrice, currency: '£' }}
             buttonPressHandler={handlePayment}
             disabled={busy}
           />

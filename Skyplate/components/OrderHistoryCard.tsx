@@ -2,6 +2,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import React from 'react';
 import { COLORS, FONTFAMILY, FONTSIZE, SPACING } from '../theme/theme';
 import OrderItemCard from './OrderItemCard';
+import { formatMoney } from '@/lib/currency';
 
 interface OrderHistoryCardProps {
   CartList: any;
@@ -53,7 +54,7 @@ const OrderHistoryCard: React.FC<OrderHistoryCardProps> = ({
           </View>}
         <View style={styles.PriceContainer}>
           <Text style={styles.HeaderTitle}>Total Amount</Text>
-          <Text style={styles.HeaderPrice}>Rs {CartListPrice}</Text>
+          <Text style={styles.HeaderPrice}>{formatMoney(CartListPrice)}</Text>
         </View>
 
       </View>

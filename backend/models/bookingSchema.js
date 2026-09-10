@@ -12,6 +12,14 @@ const bookingSchema = new mongoose.Schema(
       enum: ["Pending", "Confirmed", "Cancelled"],
       default: "Pending",
     },
+    reservationFee: { type: Number, default: 10 },
+    currency: { type: String, default: "gbp" },
+    paymentStatus: {
+      type: String,
+      enum: ["unpaid", "paid", "waived"],
+      default: "unpaid",
+    },
+    stripePaymentIntentId: { type: String, default: "" },
   },
   { timestamps: true }
 );
