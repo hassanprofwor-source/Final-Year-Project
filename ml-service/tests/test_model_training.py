@@ -13,6 +13,7 @@ import numpy as np
 from features import build_training_frame, feature_matrix, target_vector
 from model_training import (
     chronological_split,
+    model_matches_features,
     tree_quantiles,
     train_peak_hours_model,
 )
@@ -146,6 +147,16 @@ class TreeQuantileTests(unittest.TestCase):
     def test_missing_model_returns_zero_bands(self):
         bands = tree_quantiles(None, np.zeros((3, 11)))
         self.assertEqual(list(bands[50]), [0, 0, 0])
+
+
+class SavedModelCompatibilityTests(unittest.TestCase):
+    def test_current_feature_count_is_accepted(self):
+        model = type("Forest", (), {"n_features_in_": 11})()
+        self.assertTrue(model_matches_features(model, ["a"] * 11))
+
+    def test_older_three_feature_model_is_rejected(self):
+        model = type("Forest", (), {"n_features_in_": 3})()
+        self.assertFalse(model_matches_features(model, ["a"] * 11))
 
 
 class TargetTests(unittest.TestCase):

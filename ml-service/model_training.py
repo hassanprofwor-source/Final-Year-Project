@@ -201,6 +201,16 @@ def concat_frames(*frames):
     return combined.sort_values(order_columns(combined)).reset_index(drop=True)
 
 
+def model_matches_features(model, expected_columns):
+    """Reject a saved forest whose trees were trained on an older feature set."""
+    if model is None:
+        return False
+    n_features = getattr(model, "n_features_in_", None)
+    if n_features is None:
+        return True
+    return int(n_features) == len(expected_columns)
+
+
 def tree_predictions(model, X):
     return np.stack([tree.predict(X) for tree in model.estimators_])
 

@@ -38,6 +38,7 @@ from features import (
 from model_training import (
     evaluate,
     feature_importances,
+    model_matches_features,
     train_peak_hours_model,
     tree_quantiles,
 )
@@ -599,6 +600,9 @@ def load_saved_model():
         model = joblib.load(MODEL_PATH)
         meta = json.loads(META_PATH.read_text(encoding="utf-8"))
     except Exception:
+        return None, None
+
+    if not model_matches_features(model, FEATURE_COLUMNS):
         return None, None
 
     # The saved model's feature layout is tied to its hour axis.

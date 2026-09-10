@@ -12,6 +12,7 @@ from model_training import (
     chronological_split,
     concat_frames,
     fit_forest,
+    model_matches_features,
     tree_quantiles,
     tune_hyperparameters,
 )
@@ -296,6 +297,8 @@ def load_saved_model():
         model = joblib.load(MODEL_PATH)
         meta = json.loads(META_PATH.read_text(encoding="utf-8"))
     except Exception:
+        return None, None
+    if not model_matches_features(model, ITEM_FEATURE_COLUMNS):
         return None, None
     return model, meta
 
