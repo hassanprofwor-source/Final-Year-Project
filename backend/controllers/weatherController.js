@@ -40,7 +40,7 @@ export const getWeatherSuggestions = catchAsyncErrors(async (req, res, next) => 
   const weatherRes = await fetch(weatherUrl);
   const weatherData = await weatherRes.json();
 
-  if (!weatherRes.ok || weatherData.cod !== 200) {
+  if (!weatherRes.ok || Number(weatherData.cod) !== 200) {
     return next(new ErrorHandler(weatherData.message || "Failed to fetch weather.", 502));
   }
 

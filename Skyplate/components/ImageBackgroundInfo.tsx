@@ -42,11 +42,16 @@ const ImageBackgroundInfo: React.FC<ImageBackgroundInfoProps> = ({
   ratings_count,
   BackHandler,
 }) => {
+  const typeName = typeof type === 'object' && type ? type.name : type;
+  const extraLabel = Array.isArray(ingredients) ? null : ingredients;
+
   return (
     <View>
       <ImageBackground
-source={{ uri: optimizedImageUrl(String(imagelink), 900) }}
-style={styles.ItemBackgroundImage}>
+        source={imagelink ? { uri: optimizedImageUrl(String(imagelink), 900) } : undefined}
+        style={styles.ItemBackgroundImage}
+        resizeMode="cover"
+      >
         {EnableBackHandler ? (
           <View style={styles.ImageHeaderBarContainerWithBack}>
             <TouchableOpacity
@@ -78,18 +83,18 @@ style={styles.ItemBackgroundImage}>
                     size={SPACING.space_20}
                     color={COLORS.White}
                   />
-                  <Text style={styles.PropertyTextFirst}>
-                    {typeof type === 'object' && type ? type.name : type}
+                  <Text style={styles.PropertyTextFirst} numberOfLines={2}>
+                    {typeName}
                   </Text>
                 </View>
-                {ingredients ? (
+                {extraLabel ? (
                 <View style={styles.ProperFirst}>
                   <Ionicons
                     name="bonfire"
                     size={FONTSIZE.size_16}
                     color={COLORS.White}
                   />
-                  <Text style={styles.PropertyTextLast}>{ingredients}</Text>
+                  <Text style={styles.PropertyTextLast} numberOfLines={2}>{extraLabel}</Text>
                 </View>
                 ) : null}
               </View>
@@ -117,6 +122,7 @@ const styles = StyleSheet.create({
     width: '100%',
     aspectRatio: 20 / 25,
     justifyContent: 'space-between',
+    backgroundColor: COLORS.elevated,
   },
   ImageHeaderBarContainerWithBack: {
     padding: SPACING.space_30,

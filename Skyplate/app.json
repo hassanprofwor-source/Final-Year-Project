@@ -4,7 +4,7 @@
     "slug": "Skyplate",
     "version": "1.0.0",
     "extra": {
-      "frontendUrl": "http://192.168.1.11:5000",
+      "frontendUrl": "http://192.168.1.7:5000",
       "router": {
         "origin": false
       },

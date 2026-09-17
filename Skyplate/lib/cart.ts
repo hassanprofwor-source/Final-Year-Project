@@ -44,6 +44,40 @@ export const addCartItem = (cartList: CartItem[], cartItem: CartItem): CartItem[
   return next;
 };
 
+const asMoney = (value: number) => (Math.round(value * 100) / 100).toFixed(2);
+
+export const incrementCartItem = (cartList: CartItem[], id: string, size: string): CartItem[] =>
+  cartList.map((item) => {
+    if (item.id != id) return item;
+    return {
+      ...item,
+      prices: item.prices.map((line) =>
+        line.size == size ? { ...line, quantity: line.quantity + 1 } : line,
+      ),
+    };
+  });
+
+export const decrementCartItem = (cartList: CartItem[], id: string, size: string): CartItem[] => {
+  const next: CartItem[] = [];
+
+  for (const item of cartList) {
+    if (item.id != id) {
+      next.push(item);
+      continue;
+    }
+
+    const prices = item.prices
+      .map((line) =>
+        line.size == size ? { ...line, quantity: line.quantity - 1 } : line,
+      )
+      .filter((line) => line.quantity > 0);
+
+    if (prices.length > 0) next.push({ ...item, prices });
+  }
+
+  return next;
+};
+
 export const calculateCartTotals = (cartList: CartItem[]) => {
   let totalprice = 0;
   const next = cartList.map((item) => {
@@ -52,8 +86,8 @@ export const calculateCartTotals = (cartList: CartItem[]) => {
       tempprice += parseFloat(String(line.price)) * line.quantity;
     }
     totalprice += tempprice;
-    return { ...item, ItemPrice: tempprice.toString() };
+    return { ...item, ItemPrice: asMoney(tempprice) };
   });
 
-  return { cartList: next, cartPrice: totalprice.toString() };
+  return { cartList: next, cartPrice: asMoney(totalprice) };
 };

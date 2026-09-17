@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { PackageCheck, Clock, Truck } from "lucide-react";
 import PageHeader from "../../components/ui/PageHeader";
@@ -23,26 +23,23 @@ const generateTimeSlots = () => {
 
 const OrderTable = ({ orderType }) => {
   const navigate = useNavigate();
-  const { orders, loading, updateOrderStatus, deleteOrder } = useOrders();
   const [status, setStatus] = useState("Pending");
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
   const basePath = orderType === "Delivery" ? "/Delivery" : "/DineIn";
 
-  const byType = useMemo(() => orders?.filter((o) => o.orderType === orderType) || [], [orders, orderType]);
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(search.trim()), 300);
+    return () => clearTimeout(timer);
+  }, [search]);
 
-  const filtered = useMemo(() => {
-    return byType.filter((order) => {
-      if (order.status !== status) return false;
-      if (orderType === "Delivery" && search) {
-        return order.phone?.toLowerCase().includes(search.toLowerCase());
-      }
-      if (orderType === "Dine In" && selectedTime) {
-        return order.time === selectedTime;
-      }
-      return true;
-    });
-  }, [byType, status, search, selectedTime, orderType]);
+  const { orders, counts, loading, updateOrderStatus, deleteOrder } = useOrders({
+    orderType,
+    status,
+    search: debouncedSearch,
+    time: orderType === "Dine In" ? selectedTime : "",
+  });
 
   const columns = [
     {
@@ -100,12 +97,6 @@ const OrderTable = ({ orderType }) => {
     return items;
   };
 
-  const counts = {
-    Pending: byType.filter((o) => o.status === "Pending").length,
-    Accepted: byType.filter((o) => o.status === "Accepted").length,
-    Completed: byType.filter((o) => o.status === "Completed").length,
-  };
-
   return (
     <div>
       <PageHeader
@@ -113,7 +104,7 @@ const OrderTable = ({ orderType }) => {
         description={
           orderType === "Delivery"
             ? "Track and fulfill delivery orders."
-            : "Track dine-in orders by status and time slot."
+            : "Track dine-in orders by status, time slot, and phone."
         }
       />
 
@@ -148,15 +139,15 @@ const OrderTable = ({ orderType }) => {
 
         <DataTable
           columns={columns}
-          data={filtered}
+          data={orders}
           loading={loading}
           onRowClick={(order) => navigate(`${basePath}/${order._id}`)}
           actions={(order) => <RowActions items={rowActionItems(order)} />}
           emptyTitle="No orders here"
           emptyDescription={`There are no ${status.toLowerCase()} ${orderType.toLowerCase()} orders right now.`}
-          {...(orderType === "Delivery"
-            ? { searchValue: search, onSearchChange: setSearch, searchPlaceholder: "Search by phone number..." }
-            : {})}
+          searchValue={search}
+          onSearchChange={setSearch}
+          searchPlaceholder="Search by phone number..."
         />
       </div>
     </div>

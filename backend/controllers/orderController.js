@@ -6,6 +6,7 @@ import { Booking } from "../models/bookingSchema.js";
 import { stripe } from "../server.js";
 import { sendPushToEmail } from "../utils/push.js";
 import { notifyAdmin } from "../utils/notifyAdmin.js";
+import { buildOrderCountFilter, buildOrderListFilter } from "../utils/orderFilters.js";
 
 export const saveOrder = catchAsyncErrors(async (req, res, next) => {
   const { email, phone, total, address, people, tableNumber, date, time, payment } = req.body;
@@ -131,20 +132,34 @@ export const saveOrder = catchAsyncErrors(async (req, res, next) => {
 
 
   
-  export const getOrders = catchAsyncErrors(async (req, res, next) => {
-    const orders = await Order.find();
-    if (!orders || orders.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "No orders found.",
-      });
-    }
-  
-    res.status(200).json({
-      success: true,
-      data: orders,
-    });
+export const getOrders = catchAsyncErrors(async (req, res) => {
+  const filter = buildOrderListFilter(req.query);
+  const countFilter = buildOrderCountFilter(req.query);
+  const [orders, pending, accepted, completed] = await Promise.all([
+    Order.find(filter).sort({ createdAt: -1 }),
+    Order.countDocuments({ ...countFilter, status: "Pending" }),
+    Order.countDocuments({ ...countFilter, status: "Accepted" }),
+    Order.countDocuments({ ...countFilter, status: "Completed" }),
+  ]);
+
+  res.status(200).json({
+    success: true,
+    data: orders,
+    counts: { Pending: pending, Accepted: accepted, Completed: completed },
   });
+});
+
+export const getOrderById = catchAsyncErrors(async (req, res, next) => {
+  const order = await Order.findById(req.params.id);
+  if (!order) {
+    return next(new ErrorHandler("Order not found.", 404));
+  }
+
+  res.status(200).json({
+    success: true,
+    data: order,
+  });
+});
 
 
 

@@ -5,7 +5,8 @@ import Section from "../../components/ui/Section";
 import EmptyState from "../../components/ui/EmptyState";
 import Badge from "../../components/ui/Badge";
 import Button from "../../components/ui/Button";
-import { useOrders } from "./useOrders";
+import Loader from "../../components/ui/Loader";
+import { useOrder } from "./useOrder";
 import { optimizedImageUrl } from "../../lib/media";
 import { formatMoney } from "../../lib/currency";
 
@@ -15,14 +16,22 @@ const basePathFor = (orderType) => (orderType === "Delivery" ? "/Delivery" : "/D
 const OrderDetail = ({ orderType }) => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { orders, loading, updateOrderStatus, deleteOrder } = useOrders();
+  const { order, loading, updateOrderStatus, deleteOrder } = useOrder(id);
+  const listPath = basePathFor(orderType);
 
-  const order = orders.find((o) => o._id === id);
-
-  if (!loading && !order) {
+  if (loading) {
     return (
       <div>
-        <PageHeader title="Order not found" backTo={basePathFor(orderType)} />
+        <PageHeader title="Order" description={`${orderType} order`} backTo={listPath} />
+        <Loader label="Loading order" />
+      </div>
+    );
+  }
+
+  if (!order || order.orderType !== orderType) {
+    return (
+      <div>
+        <PageHeader title="Order not found" backTo={listPath} />
         <div className="px-4 py-6 lg:px-8">
           <EmptyState title="This order no longer exists" description="It may have already been removed." />
         </div>
@@ -30,12 +39,10 @@ const OrderDetail = ({ orderType }) => {
     );
   }
 
-  if (!order) return null;
-
   const handleAccept = () => updateOrderStatus(order._id, "Accepted");
-  const handleReject = () => {
-    deleteOrder(order._id);
-    navigate(basePathFor(orderType));
+  const handleReject = async () => {
+    await deleteOrder(order._id);
+    navigate(listPath);
   };
   const handleDeliver = () => updateOrderStatus(order._id, "Completed");
 
@@ -44,7 +51,7 @@ const OrderDetail = ({ orderType }) => {
       <PageHeader
         title={`Order · ${order.phone}`}
         description={`${orderType} order`}
-        backTo={basePathFor(orderType)}
+        backTo={listPath}
         actions={<Badge tone={statusTone[order.status]}>{order.status}</Badge>}
       />
 
@@ -62,12 +69,12 @@ const OrderDetail = ({ orderType }) => {
               </div>
               <div>
                 <dt className="text-gray">Payment</dt>
-                <dd className="text-white">{order.payment}</dd>
+                <dd className="text-white">{order.payment || "—"}</dd>
               </div>
               {orderType === "Delivery" && (
                 <div className="sm:col-span-2">
                   <dt className="text-gray">Address</dt>
-                  <dd className="text-white">{order.address}</dd>
+                  <dd className="text-white">{order.address || "—"}</dd>
                 </div>
               )}
               {orderType === "Dine In" && (
@@ -87,7 +94,7 @@ const OrderDetail = ({ orderType }) => {
 
           <Section title="Items">
             <div className="flex flex-col gap-3">
-              {order.cartItems.map((item, index) => (
+              {(order.cartItems || []).map((item, index) => (
                 <div key={index} className="flex items-center gap-3">
                   <img
                     src={optimizedImageUrl(item.image, 96) || "/default-food.png"}
@@ -99,14 +106,14 @@ const OrderDetail = ({ orderType }) => {
                     <p className="text-sm font-semibold text-white">
                       <span className="text-red">[{item.size?.toUpperCase()}]</span> {item.name} x{item.quantity}
                     </p>
-                    <p className="text-xs text-gray">{formatMoney(item.price.toFixed(2))}</p>
+                    <p className="text-xs text-gray">{formatMoney(Number(item.price || 0).toFixed(2))}</p>
                   </div>
                 </div>
               ))}
             </div>
             <div className="mt-4 border-t border-gray/20 pt-4 text-right">
               <span className="text-lg font-bold text-white">
-                Total: <span className="text-red">{formatMoney(order.total.toFixed(2))}</span>
+                Total: <span className="text-red">{formatMoney(Number(order.total || 0).toFixed(2))}</span>
               </span>
             </div>
           </Section>

@@ -51,6 +51,7 @@ const HomeScreen = () => {
   const [city, setCity] = useState<any>(null);
   const [imageSrc, setImageSrc] = useState('');
   const [weatherSuggestions, setWeatherSuggestions] = useState<any[]>([]);
+  const [weatherFailed, setWeatherFailed] = useState(false);
   const [activeOrder, setActiveOrder] = useState<'pending' | 'accepted' | null>(null);
   const [menuLoading, setMenuLoading] = useState(true);
 
@@ -83,22 +84,36 @@ const HomeScreen = () => {
   }, [user]);
 
   useEffect(() => {
+    let cancelled = false;
+
+    const applyWeather = (payload: any) => {
+      if (cancelled || !payload) return;
+      setWeatherFailed(false);
+      setCity({
+        name: payload.city,
+        main: { temp: payload.temp },
+        weather: [{ main: payload.condition }],
+      });
+      setWeather(payload.condition?.toLowerCase());
+      setImageSrc(payload.icon);
+      setWeatherSuggestions(payload.suggestions || []);
+    };
+
+    const loadWeather = async (coords?: { lat: number; lon: number } | null) => {
+      const response = await api.get('/api/v1/weather', {
+        params: coords ? { lat: coords.lat, lon: coords.lon } : undefined,
+      });
+      applyWeather(response.data.data);
+    };
+
     const fetchWeather = async () => {
       try {
+        await loadWeather(null);
         const coords = await getDeviceCoordinates();
-        const response = await api.get('/api/v1/weather', {
-          params: coords ? { lat: coords.lat, lon: coords.lon } : undefined,
-        });
-        const payload = response.data.data;
-        setCity({
-          name: payload.city,
-          main: { temp: payload.temp },
-          weather: [{ main: payload.condition }],
-        });
-        setWeather(payload.condition?.toLowerCase());
-        setImageSrc(payload.icon);
-        setWeatherSuggestions(payload.suggestions || []);
+        if (coords && !cancelled) await loadWeather(coords);
       } catch (error: any) {
+        if (cancelled) return;
+        setWeatherFailed(true);
         Toast.show({
           type: 'error',
           text1: 'Weather',
@@ -106,7 +121,11 @@ const HomeScreen = () => {
         });
       }
     };
+
     fetchWeather();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
@@ -158,8 +177,12 @@ const HomeScreen = () => {
             {city ? (
               <>
                 <Text style={styles.city}>{city?.name}</Text>
-                <Text style={styles.temp}>{city?.main?.temp}°C</Text>
+                <Text style={styles.temp}>
+                  {Number.isFinite(city?.main?.temp) ? `${Math.round(city.main.temp)}°C` : '—'}
+                </Text>
               </>
+            ) : weatherFailed ? (
+              <Text style={styles.city}>Unavailable</Text>
             ) : (
               <ActivityIndicator size="small" color={COLORS.primaryRedHex} />
             )}

@@ -1,5 +1,5 @@
 import { describe, expect, it } from '@jest/globals';
-import { addCartItem, calculateCartTotals } from '../lib/cart';
+import { addCartItem, calculateCartTotals, decrementCartItem, incrementCartItem } from '../lib/cart';
 
 const burger = (size: string, price: string, quantity = 1) => ({
   id: 'burger-1',
@@ -16,9 +16,30 @@ describe('cart helpers', () => {
 
     const { cartPrice, cartList } = calculateCartTotals(cart);
 
-    expect(cartPrice).toBe('31');
-    expect(cartList[0].ItemPrice).toBe('20');
-    expect(cartList[1].ItemPrice).toBe('11');
+    expect(cartPrice).toBe('31.00');
+    expect(cartList[0].ItemPrice).toBe('20.00');
+    expect(cartList[1].ItemPrice).toBe('11.00');
+  });
+
+  it('recalculates the total when a line is decremented or removed', () => {
+    const cart = [
+      { id: 'a', prices: [{ size: 'M', price: '10', quantity: 2 }] },
+      { id: 'b', prices: [{ size: 'L', price: '5.5', quantity: 1 }] },
+    ];
+
+    const reduced = decrementCartItem(cart, 'a', 'M');
+    expect(calculateCartTotals(reduced).cartPrice).toBe('15.50');
+
+    const removed = decrementCartItem(reduced, 'b', 'L');
+    expect(removed).toHaveLength(1);
+    expect(calculateCartTotals(removed).cartPrice).toBe('10.00');
+  });
+
+  it('increments quantity and the running total', () => {
+    const cart = [{ id: 'a', prices: [{ size: 'M', price: '8.9', quantity: 1 }] }];
+    const next = incrementCartItem(cart, 'a', 'M');
+    expect(next[0].prices[0].quantity).toBe(2);
+    expect(calculateCartTotals(next).cartPrice).toBe('17.80');
   });
 
   it('M05 merges the same dish and size by increasing quantity', () => {

@@ -1,7 +1,7 @@
 import React from 'react';
 import {
   Dimensions,
-  ImageBackground,
+  Image,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -16,9 +16,9 @@ import {
 } from '../theme/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { optimizedImageUrl } from '@/lib/media';
-import { CURRENCY_SYMBOL } from '@/lib/currency';
+import { CURRENCY_SYMBOL, formatAmount } from '@/lib/currency';
 
-const CARD_WIDTH = Dimensions.get('window').width * 0.42;
+const CARD_WIDTH = Math.round(Dimensions.get('window').width * 0.42);
 
 interface MenuItemCardProps {
   id: string;
@@ -45,23 +45,25 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({
   price,
   buttonPressHandler,
 }) => {
+  const imageUri = optimizedImageUrl(imagelink, 480);
+
   return (
     <View style={styles.card}>
-      <ImageBackground
-        source={{ uri: optimizedImageUrl(String(imagelink), 480) }}
-        style={styles.image}
-        resizeMode="cover"
-      >
+      <View style={styles.imageWrap}>
+        {imageUri ? (
+          <Image source={{ uri: imageUri }} style={styles.image} resizeMode="cover" />
+        ) : null}
         <View style={styles.rating}>
           <Ionicons name="star" color={COLORS.Yellow} size={12} />
           <Text style={styles.ratingText}>{average_rating || '—'}</Text>
         </View>
-      </ImageBackground>
+      </View>
       <Text style={styles.title} numberOfLines={1}>{name}</Text>
       <Text style={styles.subtitle} numberOfLines={1}>{special_ingredient}</Text>
       <View style={styles.footer}>
-        <Text style={styles.price}>
-          {CURRENCY_SYMBOL} <Text style={styles.priceValue}>{price.price}</Text>
+        <Text style={styles.price} numberOfLines={1}>
+          {CURRENCY_SYMBOL}
+          <Text style={styles.priceValue}>{formatAmount(price?.price)}</Text>
         </Text>
         <TouchableOpacity
           style={styles.add}
@@ -87,19 +89,24 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({
 
 const styles = StyleSheet.create({
   card: {
-    width: CARD_WIDTH + SPACING.space_24,
+    width: CARD_WIDTH,
     padding: SPACING.space_12,
     borderRadius: BORDERRADIUS.radius_16,
     backgroundColor: COLORS.surface,
     borderWidth: 1,
     borderColor: COLORS.border,
   },
-  image: {
-    width: CARD_WIDTH,
-    height: CARD_WIDTH,
+  imageWrap: {
+    width: '100%',
+    aspectRatio: 1,
     borderRadius: BORDERRADIUS.radius_12,
     marginBottom: SPACING.space_12,
     overflow: 'hidden',
+    backgroundColor: COLORS.elevated,
+  },
+  image: {
+    width: '100%',
+    height: '100%',
   },
   rating: {
     flexDirection: 'row',
@@ -128,14 +135,17 @@ const styles = StyleSheet.create({
     color: COLORS.primaryLightGreyHex,
     fontSize: FONTSIZE.size_12,
     marginTop: 2,
+    minHeight: FONTSIZE.size_12 + 4,
   },
   footer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginTop: SPACING.space_12,
+    gap: SPACING.space_8,
   },
   price: {
+    flex: 1,
     fontFamily: FONTFAMILY.semibold,
     color: COLORS.primaryRedHex,
     fontSize: FONTSIZE.size_16,

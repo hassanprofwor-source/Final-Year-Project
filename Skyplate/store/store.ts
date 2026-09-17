@@ -4,7 +4,7 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-toast-message';
 import { api, apiErrorMessage } from '@/lib/api';
-import { addCartItem, calculateCartTotals } from '@/lib/cart';
+import { addCartItem, calculateCartTotals, decrementCartItem, incrementCartItem } from '@/lib/cart';
 
 export const useStore = create(
   persist(
@@ -90,7 +90,9 @@ export const useStore = create(
       addToCart: (cartItem: any) =>
         set(
           produce((state: any) => {
-            state.CartList = addCartItem(state.CartList, cartItem);
+            const { cartList, cartPrice } = calculateCartTotals(addCartItem(state.CartList, cartItem));
+            state.CartList = cartList;
+            state.CartPrice = cartPrice;
           }),
         ),
       calculateCartPrice: () =>
@@ -104,48 +106,24 @@ export const useStore = create(
       incrementCartItemQuantity: (id: string, size: string) =>
         set(
           produce((state: any) => {
-            for (let i = 0; i < state.CartList.length; i++) {
-              if (state.CartList[i].id == id) {
-                for (let j = 0; j < state.CartList[i].prices.length; j++) {
-                  if (state.CartList[i].prices[j].size == size) {
-                    state.CartList[i].prices[j].quantity++;
-                    break;
-                  }
-                }
-              }
-            }
+            const { cartList, cartPrice } = calculateCartTotals(incrementCartItem(state.CartList, id, size));
+            state.CartList = cartList;
+            state.CartPrice = cartPrice;
           }),
         ),
       decrementCartItemQuantity: (id: string, size: string) =>
         set(
           produce((state: any) => {
-            for (let i = 0; i < state.CartList.length; i++) {
-              if (state.CartList[i].id == id) {
-                for (let j = 0; j < state.CartList[i].prices.length; j++) {
-                  if (state.CartList[i].prices[j].size == size) {
-                    if (state.CartList[i].prices.length > 1) {
-                      if (state.CartList[i].prices[j].quantity > 1) {
-                        state.CartList[i].prices[j].quantity--;
-                      } else {
-                        state.CartList[i].prices.splice(j, 1);
-                      }
-                    } else if (state.CartList[i].prices[j].quantity > 1) {
-                      state.CartList[i].prices[j].quantity--;
-                    } else {
-                      state.CartList.splice(i, 1);
-                    }
-                    break;
-                  }
-                }
-              }
-            }
+            const { cartList, cartPrice } = calculateCartTotals(decrementCartItem(state.CartList, id, size));
+            state.CartList = cartList;
+            state.CartPrice = cartPrice;
           }),
         ),
       emptyCart: () =>
         set(
           produce((state: any) => {
             state.CartList = [];
-            state.CartPrice = '0';
+            state.CartPrice = '0.00';
           }),
         ),
     }),

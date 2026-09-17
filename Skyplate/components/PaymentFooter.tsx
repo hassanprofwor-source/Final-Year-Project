@@ -7,7 +7,7 @@ import {
   FONTSIZE,
   SPACING,
 } from '../theme/theme';
-import { CURRENCY_SYMBOL } from '@/lib/currency';
+import { CURRENCY_SYMBOL, formatAmount } from '@/lib/currency';
 
 interface PriceProps {
   price: string;
@@ -31,8 +31,9 @@ const PaymentFooter: React.FC<PaymentFooterProps> = ({
     <View style={styles.PriceFooter}>
       <View style={styles.PriceContainer}>
         <Text style={styles.PriceTitle}>Price</Text>
-        <Text style={styles.PriceText}>
-          {CURRENCY_SYMBOL} <Text style={styles.Price}>{price.price}</Text>
+        <Text style={styles.PriceText} numberOfLines={1}>
+          {CURRENCY_SYMBOL}
+          <Text style={styles.Price}>{formatAmount(price?.price)}</Text>
         </Text>
       </View>
       <TouchableOpacity
@@ -55,8 +56,9 @@ const styles = StyleSheet.create({
     padding: SPACING.space_20,
   },
   PriceContainer: {
-    alignItems: 'center',
-    width: 100,
+    alignItems: 'flex-start',
+    minWidth: 88,
+    flexShrink: 0,
   },
   PriceTitle: {
     fontFamily: FONTFAMILY.poppins_medium,
