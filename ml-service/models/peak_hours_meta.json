@@ -1,0 +1,509 @@
+{
+  "usedSynthetic": false,
+  "sampleSize": 8540,
+  "realOrderCount": 11256,
+  "loadError": null,
+  "trainedAt": "2026-09-17T23:20:26",
+  "metrics": {
+    "train": {
+      "mae": 0.816,
+      "rmse": 1.081,
+      "r2": 0.834,
+      "rows": 1668
+    },
+    "validation": {
+      "mae": 1.167,
+      "rmse": 1.505,
+      "r2": 0.73,
+      "rows": 300
+    },
+    "test": {
+      "mae": 1.816,
+      "rmse": 2.768,
+      "r2": 0.296,
+      "rows": 300
+    },
+    "trainRows": 1368,
+    "rows": {
+      "train": 1368,
+      "validation": 300,
+      "test": 300
+    },
+    "bestParams": {
+      "max_depth": 10,
+      "max_features": "sqrt",
+      "min_samples_leaf": 4,
+      "n_estimators": 300
+    },
+    "splitApplied": true,
+    "trainWindowDays": 180,
+    "featureCount": 11,
+    "mae": 1.816,
+    "rmse": 2.768,
+    "r2": 0.296
+  },
+  "featureColumns": [
+    "hour_sin",
+    "hour_cos",
+    "weekday_sin",
+    "weekday_cos",
+    "is_weekend",
+    "month",
+    "lag_1w",
+    "lag_2w",
+    "rolling_7d_mean",
+    "rolling_28d_mean",
+    "wow_momentum"
+  ],
+  "featureImportances": [
+    {
+      "feature": "rolling_28d_mean",
+      "weight": 0.2728
+    },
+    {
+      "feature": "rolling_7d_mean",
+      "weight": 0.221
+    },
+    {
+      "feature": "lag_2w",
+      "weight": 0.1711
+    },
+    {
+      "feature": "lag_1w",
+      "weight": 0.1334
+    },
+    {
+      "feature": "weekday_sin",
+      "weight": 0.0544
+    },
+    {
+      "feature": "hour_cos",
+      "weight": 0.0524
+    },
+    {
+      "feature": "hour_sin",
+      "weight": 0.032
+    },
+    {
+      "feature": "wow_momentum",
+      "weight": 0.0224
+    },
+    {
+      "feature": "weekday_cos",
+      "weight": 0.0204
+    },
+    {
+      "feature": "month",
+      "weight": 0.011
+    },
+    {
+      "feature": "is_weekend",
+      "weight": 0.009
+    }
+  ],
+  "hyperparameters": {
+    "max_depth": 10,
+    "max_features": "sqrt",
+    "min_samples_leaf": 4,
+    "n_estimators": 300
+  },
+  "search": [
+    {
+      "params": {
+        "max_depth": 10,
+        "max_features": "sqrt",
+        "min_samples_leaf": 4,
+        "n_estimators": 300
+      },
+      "cvMae": 1.0949,
+      "cvMaeStd": 0.0416
+    },
+    {
+      "params": {
+        "max_depth": null,
+        "max_features": "sqrt",
+        "min_samples_leaf": 4,
+        "n_estimators": 300
+      },
+      "cvMae": 1.0956,
+      "cvMaeStd": 0.0439
+    },
+    {
+      "params": {
+        "max_depth": 16,
+        "max_features": "sqrt",
+        "min_samples_leaf": 4,
+        "n_estimators": 300
+      },
+      "cvMae": 1.0958,
+      "cvMaeStd": 0.0442
+    },
+    {
+      "params": {
+        "max_depth": 10,
+        "max_features": "sqrt",
+        "min_samples_leaf": 2,
+        "n_estimators": 300
+      },
+      "cvMae": 1.101,
+      "cvMaeStd": 0.0449
+    },
+    {
+      "params": {
+        "max_depth": 16,
+        "max_features": "sqrt",
+        "min_samples_leaf": 2,
+        "n_estimators": 300
+      },
+      "cvMae": 1.1049,
+      "cvMaeStd": 0.0475
+    }
+  ],
+  "promotion": {
+    "promote": true,
+    "reason": "Test MAE 1.816 is within tolerance of the live model's 1.808.",
+    "challengerMae": 1.816,
+    "championMae": 1.808
+  },
+  "lastAttempt": {
+    "at": "2026-09-17T23:20:26",
+    "metrics": {
+      "train": {
+        "mae": 0.816,
+        "rmse": 1.081,
+        "r2": 0.834,
+        "rows": 1668
+      },
+      "validation": {
+        "mae": 1.167,
+        "rmse": 1.505,
+        "r2": 0.73,
+        "rows": 300
+      },
+      "test": {
+        "mae": 1.816,
+        "rmse": 2.768,
+        "r2": 0.296,
+        "rows": 300
+      },
+      "trainRows": 1368,
+      "rows": {
+        "train": 1368,
+        "validation": 300,
+        "test": 300
+      },
+      "bestParams": {
+        "max_depth": 10,
+        "max_features": "sqrt",
+        "min_samples_leaf": 4,
+        "n_estimators": 300
+      },
+      "splitApplied": true,
+      "trainWindowDays": 180,
+      "featureCount": 11,
+      "mae": 1.816,
+      "rmse": 2.768,
+      "r2": 0.296
+    },
+    "promoted": true,
+    "reason": "Test MAE 1.816 is within tolerance of the live model's 1.808.",
+    "days": 164
+  },
+  "history": [
+    {
+      "at": "2026-09-09T22:01:43",
+      "metrics": {
+        "train": {
+          "mae": 0.802,
+          "rmse": 1.057,
+          "r2": 0.84,
+          "rows": 1680
+        },
+        "validation": {
+          "mae": 1.146,
+          "rmse": 1.496,
+          "r2": 0.744,
+          "rows": 300
+        },
+        "test": {
+          "mae": 1.016,
+          "rmse": 1.314,
+          "r2": 0.777,
+          "rows": 300
+        },
+        "trainRows": 1380,
+        "rows": {
+          "train": 1380,
+          "validation": 300,
+          "test": 300
+        },
+        "bestParams": {
+          "max_depth": 16,
+          "max_features": "sqrt",
+          "min_samples_leaf": 4,
+          "n_estimators": 300
+        },
+        "splitApplied": true,
+        "trainWindowDays": 180,
+        "featureCount": 11,
+        "mae": 1.016,
+        "rmse": 1.314,
+        "r2": 0.777
+      },
+      "promoted": true,
+      "reason": "No comparable champion metric; promoting the new model.",
+      "days": 165
+    },
+    {
+      "at": "2026-09-09T22:10:44",
+      "metrics": {
+        "train": {
+          "mae": 0.809,
+          "rmse": 1.07,
+          "r2": 0.836,
+          "rows": 1692
+        },
+        "validation": {
+          "mae": 1.143,
+          "rmse": 1.49,
+          "r2": 0.746,
+          "rows": 300
+        },
+        "test": {
+          "mae": 1.008,
+          "rmse": 1.319,
+          "r2": 0.775,
+          "rows": 300
+        },
+        "trainRows": 1392,
+        "rows": {
+          "train": 1392,
+          "validation": 300,
+          "test": 300
+        },
+        "bestParams": {
+          "max_depth": 10,
+          "max_features": "sqrt",
+          "min_samples_leaf": 4,
+          "n_estimators": 300
+        },
+        "splitApplied": true,
+        "trainWindowDays": 180,
+        "featureCount": 11,
+        "mae": 1.008,
+        "rmse": 1.319,
+        "r2": 0.775
+      },
+      "promoted": true,
+      "reason": "Test MAE 1.008 is within tolerance of the live model's 1.076.",
+      "days": 166
+    },
+    {
+      "at": "2026-09-09T23:07:35",
+      "metrics": {
+        "train": {
+          "mae": 0.812,
+          "rmse": 1.071,
+          "r2": 0.836,
+          "rows": 1680
+        },
+        "validation": {
+          "mae": 1.14,
+          "rmse": 1.482,
+          "r2": 0.748,
+          "rows": 300
+        },
+        "test": {
+          "mae": 1.01,
+          "rmse": 1.322,
+          "r2": 0.774,
+          "rows": 300
+        },
+        "trainRows": 1380,
+        "rows": {
+          "train": 1380,
+          "validation": 300,
+          "test": 300
+        },
+        "bestParams": {
+          "max_depth": 10,
+          "max_features": "sqrt",
+          "min_samples_leaf": 4,
+          "n_estimators": 300
+        },
+        "splitApplied": true,
+        "trainWindowDays": 180,
+        "featureCount": 11,
+        "mae": 1.01,
+        "rmse": 1.322,
+        "r2": 0.774
+      },
+      "promoted": true,
+      "reason": "Test MAE 1.010 is within tolerance of the live model's 1.008.",
+      "days": 165
+    },
+    {
+      "at": "2026-09-09T23:21:36",
+      "metrics": {
+        "train": {
+          "mae": 0.812,
+          "rmse": 1.071,
+          "r2": 0.836,
+          "rows": 1680
+        },
+        "validation": {
+          "mae": 1.14,
+          "rmse": 1.482,
+          "r2": 0.748,
+          "rows": 300
+        },
+        "test": {
+          "mae": 1.01,
+          "rmse": 1.322,
+          "r2": 0.774,
+          "rows": 300
+        },
+        "trainRows": 1380,
+        "rows": {
+          "train": 1380,
+          "validation": 300,
+          "test": 300
+        },
+        "bestParams": {
+          "max_depth": 10,
+          "max_features": "sqrt",
+          "min_samples_leaf": 4,
+          "n_estimators": 300
+        },
+        "splitApplied": true,
+        "trainWindowDays": 180,
+        "featureCount": 11,
+        "mae": 1.01,
+        "rmse": 1.322,
+        "r2": 0.774
+      },
+      "promoted": true,
+      "reason": "Test MAE 1.010 is within tolerance of the live model's 1.010.",
+      "days": 165
+    },
+    {
+      "at": "2026-09-10T16:20:07",
+      "metrics": {
+        "train": {
+          "mae": 0.811,
+          "rmse": 1.07,
+          "r2": 0.837,
+          "rows": 1692
+        },
+        "validation": {
+          "mae": 1.165,
+          "rmse": 1.507,
+          "r2": 0.746,
+          "rows": 300
+        },
+        "test": {
+          "mae": 1.051,
+          "rmse": 1.548,
+          "r2": 0.711,
+          "rows": 300
+        },
+        "trainRows": 1392,
+        "rows": {
+          "train": 1392,
+          "validation": 300,
+          "test": 300
+        },
+        "bestParams": {
+          "max_depth": 10,
+          "max_features": "sqrt",
+          "min_samples_leaf": 4,
+          "n_estimators": 300
+        },
+        "splitApplied": true,
+        "trainWindowDays": 180,
+        "featureCount": 11,
+        "mae": 1.051,
+        "rmse": 1.548,
+        "r2": 0.711
+      },
+      "promoted": true,
+      "reason": "Test MAE 1.051 is within tolerance of the live model's 1.053.",
+      "days": 166
+    },
+    {
+      "at": "2026-09-17T23:20:26",
+      "metrics": {
+        "train": {
+          "mae": 0.816,
+          "rmse": 1.081,
+          "r2": 0.834,
+          "rows": 1668
+        },
+        "validation": {
+          "mae": 1.167,
+          "rmse": 1.505,
+          "r2": 0.73,
+          "rows": 300
+        },
+        "test": {
+          "mae": 1.816,
+          "rmse": 2.768,
+          "r2": 0.296,
+          "rows": 300
+        },
+        "trainRows": 1368,
+        "rows": {
+          "train": 1368,
+          "validation": 300,
+          "test": 300
+        },
+        "bestParams": {
+          "max_depth": 10,
+          "max_features": "sqrt",
+          "min_samples_leaf": 4,
+          "n_estimators": 300
+        },
+        "splitApplied": true,
+        "trainWindowDays": 180,
+        "featureCount": 11,
+        "mae": 1.816,
+        "rmse": 2.768,
+        "r2": 0.296
+      },
+      "promoted": true,
+      "reason": "Test MAE 1.816 is within tolerance of the live model's 1.808.",
+      "days": 164
+    }
+  ],
+  "coverage": {
+    "lastOrderAt": "2026-09-15T14:04:45",
+    "daysSinceLastOrder": 2,
+    "recentDailyMean": 14.29,
+    "priorDailyMean": 46.48,
+    "stalled": false,
+    "message": "Orders are arriving at about 14.3 per day."
+  },
+  "hours": [
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22
+  ],
+  "weekdays": [
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+    "Sunday"
+  ]
+}

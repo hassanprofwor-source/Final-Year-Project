@@ -4,4 +4,4 @@
 !.env.example
 __pycache__/
 *.py[cod]
-models/
+# Keep trained .joblib files in git so the hosted service can load them.

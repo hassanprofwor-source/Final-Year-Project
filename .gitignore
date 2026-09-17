@@ -38,7 +38,7 @@ __pycache__/
 *.py[cod]
 *.egg-info/
 .pytest_cache/
-ml-service/models/
+# Trained model files are committed so Render can serve forecasts without retraining.
 
 # Expo / Metro
 .expo/

@@ -1,0 +1,65 @@
+services:
+  - type: web
+    name: skyplate-api
+    runtime: node
+    plan: free
+    region: frankfurt
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: node server.js
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: ML_SERVICE_URL
+        fromService:
+          name: skyplate-ml
+          type: web
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: MONGO_URI
+        sync: false
+      - key: CLERK_PUBLISHABLE_KEY
+        sync: false
+      - key: CLERK_SECRET_KEY
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_PUBLISHABLE_KEY
+        sync: false
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: OPENWEATHER_API_KEY
+        sync: false
+      - key: OPENWEATHER_CITY_ID
+        value: "1177654"
+      - key: ANALYTICS_TZ
+        value: Europe/London
+      - key: FRONTEND_URL
+        sync: false
+
+  - type: web
+    name: skyplate-ml
+    runtime: python
+    plan: free
+    region: frankfurt
+    rootDir: ml-service
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 1 --threads 2 --timeout 120 app:app
+    healthCheckPath: /health
+    envVars:
+      - key: ENABLE_SCHEDULED_RETRAIN
+        value: "false"
+      - key: FLASK_DEBUG
+        value: "0"
+      - key: TUNING_PROFILE
+        value: fast
+      - key: MONGO_DB_NAME
+        value: Skyplate
+      - key: ANALYTICS_TZ
+        value: Europe/London
+      - key: MONGO_URI
+        sync: false

@@ -1,0 +1,93 @@
+{
+  "ready": true,
+  "trainedAt": "2026-09-17T23:24:20",
+  "metrics": {
+    "train": {
+      "mae": 1.581,
+      "rmse": 2.355,
+      "r2": 0.922,
+      "rows": 5919
+    },
+    "validation": {
+      "mae": 2.18,
+      "rmse": 3.623,
+      "r2": 0.877,
+      "rows": 1050
+    },
+    "test": {
+      "mae": 2.86,
+      "rmse": 5.382,
+      "r2": 0.662,
+      "rows": 1050
+    }
+  },
+  "hyperparameters": {
+    "max_depth": 10,
+    "max_features": "sqrt",
+    "min_samples_leaf": 4,
+    "n_estimators": 300
+  },
+  "featureColumns": [
+    "weekday_sin",
+    "weekday_cos",
+    "is_weekend",
+    "month",
+    "lag_1w",
+    "lag_2w",
+    "rolling_7d_mean",
+    "rolling_28d_mean",
+    "wow_momentum",
+    "item_share_28d"
+  ],
+  "featureImportances": [
+    {
+      "feature": "rolling_28d_mean",
+      "weight": 0.264
+    },
+    {
+      "feature": "item_share_28d",
+      "weight": 0.2264
+    },
+    {
+      "feature": "rolling_7d_mean",
+      "weight": 0.2011
+    },
+    {
+      "feature": "lag_2w",
+      "weight": 0.1291
+    },
+    {
+      "feature": "lag_1w",
+      "weight": 0.1265
+    },
+    {
+      "feature": "weekday_sin",
+      "weight": 0.0234
+    },
+    {
+      "feature": "wow_momentum",
+      "weight": 0.0119
+    },
+    {
+      "feature": "weekday_cos",
+      "weight": 0.0082
+    },
+    {
+      "feature": "month",
+      "weight": 0.0053
+    },
+    {
+      "feature": "is_weekend",
+      "weight": 0.0041
+    }
+  ],
+  "days": 233,
+  "itemCount": 30,
+  "promotion": {
+    "promote": true,
+    "reason": "Test MAE 2.860 is within tolerance of the live model's 2.850.",
+    "challengerMae": 2.86,
+    "championMae": 2.85
+  },
+  "horizonDays": 7
+}
