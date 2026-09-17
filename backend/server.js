@@ -1,11 +1,8 @@
 import app from "./app.js";
-
 import cloudinary from "cloudinary";
-
-
 import Stripe from "stripe";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "sk_placeholder");
 
 cloudinary.v2.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -13,8 +10,12 @@ cloudinary.v2.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-app.listen(process.env.PORT, () => {
-  console.log(`Server listening on port ${process.env.PORT}`);
-});
+if (!process.env.VERCEL) {
+  const port = process.env.PORT || 5000;
+  app.listen(port, () => {
+    console.log(`Server listening on port ${port}`);
+  });
+}
 
-export {stripe}
+export default app;
+export { stripe };
