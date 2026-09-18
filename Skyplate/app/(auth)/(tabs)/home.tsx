@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ScrollView,
   StyleSheet,
@@ -15,7 +15,7 @@ import { useStore } from '../../../store/store';
 import { COLORS, FONTFAMILY, FONTSIZE, SPACING, BORDERRADIUS } from '../../../theme/theme';
 import HeaderBar from '../../../components/HeaderBar';
 import MenuItemCard from '../../../components/MenuItemCard';
-import { useRouter } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import Toast from 'react-native-toast-message';
 import { useUser } from '@clerk/expo';
@@ -25,6 +25,7 @@ import { registerPushToken } from '@/lib/notifications';
 import Screen from '@/components/ui/Screen';
 import EmptyState from '@/components/ui/EmptyState';
 import LoadingState from '@/components/ui/LoadingState';
+import { useOrderWatch } from '@/hooks/useOrderWatch';
 
 const getCategoriesFromData = (data: any) => {
   const temp: any = {};
@@ -66,22 +67,39 @@ const HomeScreen = () => {
     registerPushToken(user.primaryEmailAddress?.emailAddress).catch(() => undefined);
   }, [user]);
 
-  useEffect(() => {
-    const checkOrder = async () => {
-      if (!user?.primaryEmailAddress?.emailAddress) return;
-      try {
-        const response = await api.get(
-          `/api/v1/order/getOrderDelivery/${encodeURIComponent(user.primaryEmailAddress.emailAddress)}`,
-        );
-        if (response.data.data?.accepted) setActiveOrder('accepted');
-        else if (response.data.data?.pending) setActiveOrder('pending');
-        else setActiveOrder(null);
-      } catch {
-        setActiveOrder(null);
-      }
-    };
-    checkOrder();
-  }, [user]);
+  const email = user?.primaryEmailAddress?.emailAddress;
+
+  const applyOrderState = useCallback((pending: boolean, accepted: boolean) => {
+    if (accepted) setActiveOrder('accepted');
+    else if (pending) setActiveOrder('pending');
+    else setActiveOrder(null);
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      let cancelled = false;
+      const checkOrder = async () => {
+        if (!email) return;
+        try {
+          const response = await api.get(
+            `/api/v1/order/getOrderDelivery/${encodeURIComponent(email)}`,
+          );
+          if (cancelled) return;
+          applyOrderState(!!response.data.data?.pending, !!response.data.data?.accepted);
+        } catch {
+          if (!cancelled) setActiveOrder(null);
+        }
+      };
+      checkOrder();
+      return () => {
+        cancelled = true;
+      };
+    }, [email, applyOrderState]),
+  );
+
+  useOrderWatch(email, ({ pending, accepted }) => {
+    applyOrderState(pending, accepted);
+  });
 
   useEffect(() => {
     let cancelled = false;

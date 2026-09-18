@@ -33,8 +33,8 @@ export const useOrderWatch = (
 
     const sub = Notifications.addNotificationReceivedListener((notification) => {
       const data = notification.request.content.data as Record<string, unknown> | undefined;
+      check();
       if (data?.screen) routeFromPushData(data);
-      else check();
     });
     const responseSub = Notifications.addNotificationResponseReceivedListener((response) => {
       routeFromPushData(response.notification.request.content.data as Record<string, unknown>);
