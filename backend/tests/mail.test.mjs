@@ -8,7 +8,17 @@ import {
   statusForMailError,
 } from "../utils/mail.js";
 
-const tracked = ["RESEND_API_KEY", "SMTP_MAIL", "SMTP_PASSWORD", "SMTP_HOST", "SMTP_PORT", "RENDER", "MAIL_FROM"];
+const tracked = [
+  "RESEND_API_KEY",
+  "SMTP_MAIL",
+  "SMTP_PASSWORD",
+  "SMTP_HOST",
+  "SMTP_PORT",
+  "RENDER",
+  "MAIL_FROM",
+  "MAIL_WEBHOOK_URL",
+  "MAIL_WEBHOOK_SECRET",
+];
 const original = Object.fromEntries(tracked.map((key) => [key, process.env[key]]));
 
 function restoreEnv() {
@@ -21,7 +31,14 @@ function restoreEnv() {
 afterEach(restoreEnv);
 
 describe("getMailTransport", () => {
+  it("prefers the Gmail webhook over Resend", () => {
+    process.env.MAIL_WEBHOOK_URL = "https://script.google.com/macros/s/abc/exec";
+    process.env.RESEND_API_KEY = "re_test";
+    assert.equal(getMailTransport(), "webhook");
+  });
+
   it("prefers Resend when an API key is set", () => {
+    delete process.env.MAIL_WEBHOOK_URL;
     process.env.RESEND_API_KEY = "re_test";
     process.env.SMTP_MAIL = "skyplate@gmail.com";
     process.env.SMTP_PASSWORD = "app-password";
@@ -36,6 +53,7 @@ describe("getMailTransport", () => {
   });
 
   it("returns null when nothing is configured", () => {
+    delete process.env.MAIL_WEBHOOK_URL;
     delete process.env.RESEND_API_KEY;
     delete process.env.SMTP_MAIL;
     delete process.env.SMTP_PASSWORD;
@@ -53,7 +71,34 @@ describe("getMailTransport", () => {
 });
 
 describe("sendMail", () => {
+  it("sends through the Gmail webhook over HTTPS", async () => {
+    process.env.MAIL_WEBHOOK_URL = "https://script.google.com/macros/s/abc/exec";
+    process.env.MAIL_WEBHOOK_SECRET = "test-secret";
+    process.env.RENDER = "true";
+
+    let calledWith;
+    const fetchImpl = async (url, options) => {
+      calledWith = { url, options };
+      return { ok: true, text: async () => JSON.stringify({ ok: true }) };
+    };
+
+    const result = await sendMail(
+      { to: "guest@example.com", subject: "Reply", text: "Thanks" },
+      { fetchImpl },
+    );
+
+    assert.equal(result.transport, "webhook");
+    assert.equal(calledWith.url, "https://script.google.com/macros/s/abc/exec");
+    assert.deepEqual(JSON.parse(calledWith.options.body), {
+      to: "guest@example.com",
+      subject: "Reply",
+      text: "Thanks",
+      secret: "test-secret",
+    });
+  });
+
   it("sends through Resend over HTTPS", async () => {
+    delete process.env.MAIL_WEBHOOK_URL;
     process.env.RESEND_API_KEY = "re_test";
     delete process.env.RENDER;
 
@@ -81,6 +126,7 @@ describe("sendMail", () => {
   });
 
   it("refuses SMTP on Render instead of hanging on a blocked port", async () => {
+    delete process.env.MAIL_WEBHOOK_URL;
     delete process.env.RESEND_API_KEY;
     process.env.SMTP_MAIL = "skyplate@gmail.com";
     process.env.SMTP_PASSWORD = "app-password";
@@ -93,6 +139,7 @@ describe("sendMail", () => {
   });
 
   it("uses SMTP locally when Resend is not configured", async () => {
+    delete process.env.MAIL_WEBHOOK_URL;
     delete process.env.RESEND_API_KEY;
     delete process.env.RENDER;
     process.env.SMTP_MAIL = "skyplate@gmail.com";
@@ -118,7 +165,7 @@ describe("sendMail", () => {
 
 describe("describeMailError", () => {
   it("maps missing config and auth failures", () => {
-    assert.match(describeMailError({ code: "MAIL_NOT_CONFIGURED" }), /RESEND_API_KEY/);
+    assert.match(describeMailError({ code: "MAIL_NOT_CONFIGURED" }), /MAIL_WEBHOOK_URL/);
     assert.match(describeMailError({ code: "EAUTH" }), /App Password/);
     assert.equal(statusForMailError({ code: "MAIL_NOT_CONFIGURED" }), 503);
     assert.equal(statusForMailError({ code: "EAUTH" }), 500);

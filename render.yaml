@@ -44,6 +44,10 @@ services:
         sync: false
       - key: MAIL_FROM
         value: Skyplate <onboarding@resend.dev>
+      - key: MAIL_WEBHOOK_URL
+        sync: false
+      - key: MAIL_WEBHOOK_SECRET
+        sync: false
 
   - type: web
     name: skyplate-ml
