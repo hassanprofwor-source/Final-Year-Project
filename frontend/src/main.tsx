@@ -21,10 +21,10 @@ createRoot(document.getElementById('root')!).render(
         variables: {
           colorPrimary: '#e11d48',
           colorBackground: '#15171e',
-          colorText: '#f4f1ec',
-          colorTextSecondary: '#9ca3af',
-          colorInputBackground: '#1c1f28',
-          colorInputText: '#f4f1ec',
+          colorForeground: '#f4f1ec',
+          colorMutedForeground: '#9ca3af',
+          colorInput: '#1c1f28',
+          colorInputForeground: '#f4f1ec',
           borderRadius: '0.75rem',
         },
       }}

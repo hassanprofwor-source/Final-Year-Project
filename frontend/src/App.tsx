@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import AOS from "aos";
 import "aos/dist/aos.css";
@@ -39,33 +39,33 @@ const App = () => {
    return (
       <BrowserRouter>
          <Routes>
-            <Route exact path="/" element={<SignIn />} />
+            <Route path="/" element={<SignIn />} />
 
             <Route element={<RequireAdmin />}>
                <Route element={<DashboardLayout />}>
-                  <Route exact path="/Home" element={<Home />} />
-                  <Route exact path="/Menu" element={<Menu />} />
-                  <Route exact path="/Menu/new" element={<MenuNew />} />
-                  <Route exact path="/Menu/:id/edit" element={<MenuEdit />} />
-                  <Route exact path="/Menu/Types" element={<ManageItemTypes />} />
-                  <Route exact path="/Users" element={<Users />} />
-                  <Route exact path="/Delivery" element={<Delivery />} />
-                  <Route exact path="/Delivery/:id" element={<DeliveryDetail />} />
-                  <Route exact path="/DineIn" element={<DineIn />} />
-                  <Route exact path="/DineIn/:id" element={<DineInDetail />} />
-                  <Route exact path="/Reviews" element={<Reviews />} />
-                  <Route exact path="/Analytics" element={<Analytics />} />
-                  <Route exact path="/Manage" element={<Manage />} />
-                  <Route exact path="/Manage/Tables" element={<ManageTables />} />
-                  <Route exact path="/Manage/Tables/new" element={<ManageTablesNew />} />
-                  <Route exact path="/Manage/Tables/:id/edit" element={<ManageTablesEdit />} />
-                  <Route exact path="/Manage/TimeSlots" element={<ManageTimeSlots />} />
-                  <Route exact path="/Manage/TimeSlots/new" element={<ManageTimeSlotsNew />} />
-                  <Route exact path="/Manage/TimeSlots/:id/edit" element={<ManageTimeSlotsEdit />} />
+                  <Route path="/Home" element={<Home />} />
+                  <Route path="/Menu" element={<Menu />} />
+                  <Route path="/Menu/new" element={<MenuNew />} />
+                  <Route path="/Menu/:id/edit" element={<MenuEdit />} />
+                  <Route path="/Menu/Types" element={<ManageItemTypes />} />
+                  <Route path="/Users" element={<Users />} />
+                  <Route path="/Delivery" element={<Delivery />} />
+                  <Route path="/Delivery/:id" element={<DeliveryDetail />} />
+                  <Route path="/DineIn" element={<DineIn />} />
+                  <Route path="/DineIn/:id" element={<DineInDetail />} />
+                  <Route path="/Reviews" element={<Reviews />} />
+                  <Route path="/Analytics" element={<Analytics />} />
+                  <Route path="/Manage" element={<Manage />} />
+                  <Route path="/Manage/Tables" element={<ManageTables />} />
+                  <Route path="/Manage/Tables/new" element={<ManageTablesNew />} />
+                  <Route path="/Manage/Tables/:id/edit" element={<ManageTablesEdit />} />
+                  <Route path="/Manage/TimeSlots" element={<ManageTimeSlots />} />
+                  <Route path="/Manage/TimeSlots/new" element={<ManageTimeSlotsNew />} />
+                  <Route path="/Manage/TimeSlots/:id/edit" element={<ManageTimeSlotsEdit />} />
                </Route>
             </Route>
 
-            <Route exact path="/*" element={<Error />} />
+            <Route path="/*" element={<Error />} />
 
          </Routes>
          <ToastContainer position="top-right" theme="dark" />
