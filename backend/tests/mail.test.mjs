@@ -41,6 +41,15 @@ describe("getMailTransport", () => {
     delete process.env.SMTP_PASSWORD;
     assert.equal(getMailTransport(), null);
   });
+
+  it("treats quoted or whitespace-only keys as unset", () => {
+    process.env.RESEND_API_KEY = '  "re_test"  ';
+    assert.equal(getMailTransport(), "resend");
+    process.env.RESEND_API_KEY = "   ";
+    process.env.SMTP_MAIL = "";
+    process.env.SMTP_PASSWORD = "";
+    assert.equal(getMailTransport(), null);
+  });
 });
 
 describe("sendMail", () => {
@@ -113,5 +122,13 @@ describe("describeMailError", () => {
     assert.match(describeMailError({ code: "EAUTH" }), /App Password/);
     assert.equal(statusForMailError({ code: "MAIL_NOT_CONFIGURED" }), 503);
     assert.equal(statusForMailError({ code: "EAUTH" }), 500);
+  });
+
+  it("does not hide Resend API errors behind the SMTP message", () => {
+    process.env.RENDER = "true";
+    assert.equal(
+      describeMailError({ code: "RESEND_ERROR", message: "You can only send testing emails to your own email address." }),
+      "You can only send testing emails to your own email address.",
+    );
   });
 });
