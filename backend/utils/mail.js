@@ -49,7 +49,7 @@ export function statusForMailError(error) {
 }
 
 async function sendViaResend({ to, subject, text }, fetchImpl) {
-  const from = envValue("MAIL_FROM") || "Skyplate <beth.t@example.com>";
+  const from = envValue("MAIL_FROM") || "Skyplate <onboarding@resend.dev>";
   const response = await fetchImpl("https://api.resend.com/emails", {
     method: "POST",
     headers: {

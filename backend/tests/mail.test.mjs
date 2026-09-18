@@ -73,7 +73,7 @@ describe("sendMail", () => {
     assert.equal(calledWith.options.method, "POST");
     assert.equal(calledWith.options.headers.Authorization, "Bearer re_test");
     assert.deepEqual(JSON.parse(calledWith.options.body), {
-      from: "Skyplate <beth.t@example.com>",
+      from: "Skyplate <onboarding@resend.dev>",
       to: ["guest@example.com"],
       subject: "Reply",
       text: "Thanks",
