@@ -29,7 +29,7 @@ CORS(app)
 
 def get_model():
     model, meta = load_saved_model()
-    if model is None:
+    if model is None and scheduler_enabled():
         model, meta = train_and_save()
     return model, meta
 
@@ -53,16 +53,7 @@ scheduler = RetrainScheduler(
 
 @app.get("/health")
 def health():
-    model, meta = load_saved_model()
-    return jsonify(
-        {
-            "ok": True,
-            "modelReady": model is not None,
-            "trainedAt": None if meta is None else meta.get("trainedAt"),
-            "usedSynthetic": None if meta is None else meta.get("usedSynthetic"),
-            "scheduler": scheduler.status(),
-        }
-    )
+    return jsonify({"ok": True})
 
 
 @app.get("/predict")
