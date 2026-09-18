@@ -18,6 +18,8 @@ const ReplyModal = ({ review, onClose, onSubmit }) => {
     try {
       await onSubmit(review, replyText);
       onClose();
+    } catch {
+      // Toast is already shown by replyToReview.
     } finally {
       setSubmitting(false);
     }

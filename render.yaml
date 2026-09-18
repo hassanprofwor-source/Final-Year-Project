@@ -40,6 +40,10 @@ services:
         value: Europe/London
       - key: FRONTEND_URL
         sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: MAIL_FROM
+        value: Skyplate <beth.t@example.com>
 
   - type: web
     name: skyplate-ml

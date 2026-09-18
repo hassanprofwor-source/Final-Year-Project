@@ -1,8 +1,8 @@
 import { catchAsyncErrors } from "../middlewares/catchAsyncErrors.js";
 import ErrorHandler from "../middlewares/error.js";
 import {Feedback} from '../models/feedbackSchema.js'
-import nodemailer from 'nodemailer'
 import mongoose from "mongoose";
+import { describeMailError, sendMail, statusForMailError } from "../utils/mail.js";
 
 export const savefeedback = catchAsyncErrors(async (req, res, next) => {
     const { firstname, email, phone, feedback, image, rating } = req.body;
@@ -60,34 +60,12 @@ export const sendEmail = catchAsyncErrors(async (req, res, next) => {
     return next(new ErrorHandler("Email, subject, and message are required.", 400));
   }
 
-  const smtpPort = Number(process.env.SMTP_PORT) || 465;
   try {
-      const transporter = nodemailer.createTransport({
-          host: process.env.SMTP_HOST,
-          port: smtpPort,
-          secure: smtpPort === 465,
-          service: process.env.SMTP_SERVICE,
-          auth: {
-              user: process.env.SMTP_MAIL,
-              pass: (process.env.SMTP_PASSWORD || "").replace(/\s/g, ""),
-          },
-      });
-
-      await transporter.sendMail({
-          from: `"Skyplate" <${process.env.SMTP_MAIL}>`,
-          to: email,
-          subject: subject,
-          text: message,
-      });
-
-      res.status(200).json({ success: true, message: 'Email sent successfully!' });
+    await sendMail({ to: email, subject, text: message });
+    res.status(200).json({ success: true, message: "Email sent successfully!" });
   } catch (error) {
-      console.error(error);
-      const message =
-        error.code === "EAUTH"
-          ? "Gmail rejected the SMTP login. Set SMTP_PASSWORD to a 16-character App Password (2-Step Verification must be on)."
-          : "Failed to send email";
-      res.status(500).json({ success: false, message });
+    console.error(error);
+    return next(new ErrorHandler(describeMailError(error), statusForMailError(error)));
   }
 });
 
