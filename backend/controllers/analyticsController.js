@@ -6,6 +6,27 @@ import { buildMenuInsights } from "../utils/menuInsights.js";
 import { buildPeakHoursReport } from "../utils/peakHours.js";
 
 const mlServiceUrl = () => process.env.ML_SERVICE_URL || "http://localhost:5001";
+const ML_WAKE_MS = 60_000;
+
+const wakeMlService = async () => {
+  try {
+    const response = await fetch(`${mlServiceUrl()}/health`, {
+      signal: AbortSignal.timeout(ML_WAKE_MS),
+    });
+    const payload = await response.json().catch(() => ({}));
+    return response.ok && payload.ok !== false;
+  } catch {
+    return false;
+  }
+};
+
+export const getMlWarmup = catchAsyncErrors(async (_req, res) => {
+  const woken = await wakeMlService();
+  res.status(woken ? 200 : 503).json({
+    success: woken,
+    data: { woken },
+  });
+});
 
 export const getPeakHours = catchAsyncErrors(async (req, res) => {
   const baseUrl = mlServiceUrl();

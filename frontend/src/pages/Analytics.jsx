@@ -6,6 +6,7 @@ import apiClient from "../lib/apiClient";
 import PeakHoursChart from "../modules/analytics/PeakHoursChart";
 import MenuInsights from "../modules/analytics/MenuInsights";
 import { sourceLabel } from "../modules/analytics/sourceLabel";
+import { wakeMlService } from "../lib/wakeMl";
 
 const apiUrl = import.meta.env.VITE_SERVER_URL;
 
@@ -21,6 +22,7 @@ function Analytics() {
     setLoading(true);
     setError("");
     try {
+      await wakeMlService();
       const [peakResult, menuResult] = await Promise.allSettled([
         apiClient.get(`${apiUrl}/api/v1/analytics/peak-hours`),
         apiClient.get(`${apiUrl}/api/v1/analytics/menu-insights`),
