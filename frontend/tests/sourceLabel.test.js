@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { driftLabel, driftTone, sourceLabel } from "../src/modules/analytics/sourceLabel.js";
+import {
+  driftLabel,
+  driftTone,
+  isDateOnOrBeforeToday,
+  sourceLabel,
+} from "../src/modules/analytics/sourceLabel.js";
 
 describe("analytics source labels", () => {
   it("W05 labels synthetic training data", () => {
@@ -27,5 +32,13 @@ describe("analytics source labels", () => {
     expect(driftTone("watch")).toBe("pending");
     expect(driftLabel("degraded")).toBe("Accuracy dropping");
     expect(driftTone("degraded")).toBe("rejected");
+  });
+
+  it("shows forecast dates through today and hides later dates", () => {
+    const today = new Date(2026, 9, 7);
+
+    expect(isDateOnOrBeforeToday("2026-10-06", today)).toBe(true);
+    expect(isDateOnOrBeforeToday("2026-10-07", today)).toBe(true);
+    expect(isDateOnOrBeforeToday("2026-10-08", today)).toBe(false);
   });
 });

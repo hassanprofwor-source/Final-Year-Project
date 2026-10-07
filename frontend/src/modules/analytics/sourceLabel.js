@@ -13,6 +13,16 @@ export const formatDate = (value) => {
   return date.toLocaleDateString(undefined, { day: "numeric", month: "short" });
 };
 
+export const isDateOnOrBeforeToday = (value, now = new Date()) => {
+  if (!value) return true;
+  const dateKey = String(value).slice(0, 10);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateKey)) return true;
+  const todayKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(
+    now.getDate(),
+  ).padStart(2, "0")}`;
+  return dateKey <= todayKey;
+};
+
 export const driftTone = (status) => {
   if (status === "degraded") return "rejected";
   if (status === "watch") return "pending";

@@ -17,6 +17,7 @@ import {
   driftLabel,
   driftTone,
   formatDate,
+  isDateOnOrBeforeToday,
   sourceLabel,
 } from "./sourceLabel";
 
@@ -28,6 +29,7 @@ const PeakHoursChart = ({ payload }) => {
   const selectedDay = payload?.weekdays?.includes(weekday)
     ? weekday
     : currentWeekday(payload?.weekdays);
+  const showActuals = isDateOnOrBeforeToday(payload?.predictionDates?.[selectedDay]);
 
   const chartData = useMemo(() => {
     if (!payload) return null;
@@ -36,7 +38,9 @@ const PeakHoursChart = ({ payload }) => {
       datasets: [
         {
           label: "Orders placed",
-          data: payload.actuals?.[selectedDay] || [],
+          data: showActuals
+            ? payload.actuals?.[selectedDay] || []
+            : (payload.hours || []).map(() => null),
           backgroundColor: "#b91c1c",
         },
         {
@@ -46,7 +50,7 @@ const PeakHoursChart = ({ payload }) => {
         },
       ],
     };
-  }, [payload, selectedDay]);
+  }, [payload, selectedDay, showActuals]);
 
   const busiestHour = useMemo(() => {
     if (!payload) return "—";
